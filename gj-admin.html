@@ -10,7 +10,7 @@
 :root{
   --br:#2D1F0E;--bm:#4A3020;
   --gr:#3B5A28;--gm:#5A8040;
-  --gd:#F0F5EA;--cream:#FAF7F2;--ivory:#F5EFE5;
+  --gd:#F0F5EA;--ivory:#F5EFE5;--cream:#FAF7F2;
   --gold:#C8A050;
   --txt:#1A1008;--txt2:#5A4030;--txt3:#9A8070;
   --bd:#D8C8B0;--bds:#EAD8C0;
@@ -23,31 +23,30 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
 
 /* ══ 로그인 ══ */
 #wLogin{width:100%;max-width:400px;padding:20px;}
-.lcard{background:#fff;border-radius:22px;padding:38px 30px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
-.llogo{text-align:center;margin-bottom:26px;}
-.llogo-ico{font-size:46px;}
+.lcard{background:#fff;border-radius:22px;padding:36px 28px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.llogo{text-align:center;margin-bottom:24px;}
+.llogo-ico{font-size:44px;}
 .llogo-title{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:700;color:var(--br);margin-top:8px;}
 .llogo-sub{font-size:12px;color:var(--txt3);margin-top:3px;}
-.lfield{margin-bottom:14px;}
-.lfield label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:6px;}
-.linp{width:100%;border:1.5px solid var(--bd);border-radius:10px;padding:13px 14px;font-size:14px;font-family:inherit;background:var(--ivory);outline:none;transition:.15s;}
+.lfield{margin-bottom:13px;}
+.lfield label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:5px;}
+.linp{width:100%;border:1.5px solid var(--bd);border-radius:10px;padding:12px 14px;font-size:14px;font-family:inherit;background:var(--ivory);outline:none;transition:.15s;}
 .linp:focus{border-color:var(--gr);background:#fff;}
 .lerr{color:var(--red);font-size:12px;text-align:center;padding:6px;display:none;margin-bottom:6px;}
-.lbtn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--gr),var(--gm));color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(59,90,40,.3);}
-.lbtn:active{opacity:.85;}
+.lbtn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--gr),var(--gm));color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
 
-/* ══ 앱 ══ */
-#wAdmin{display:none;width:100%;min-height:100vh;background:#F4F1EC;align-items:stretch;}
+/* ══ 앱 레이아웃 ══ */
+#wAdmin{display:none;width:100%;min-height:100vh;background:#F4F1EC;}
 #wAdmin.show{display:flex;}
 
 /* 사이드바 */
-.sb{width:var(--sb);min-height:100vh;background:linear-gradient(180deg,var(--br),var(--bm));position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:200;transition:.3s;}
+.sb{width:var(--sb);min-height:100vh;background:linear-gradient(180deg,var(--br),var(--bm));position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:200;transition:transform .3s;}
 .sb-logo{padding:22px 18px 18px;border-bottom:1px solid rgba(255,255,255,.1);}
 .sb-logo-ico{font-size:26px;}
 .sb-logo-title{font-family:'Noto Serif KR',serif;font-size:14px;font-weight:700;color:#fff;margin-top:6px;line-height:1.4;}
 .sb-logo-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;}
 .sb-nav{flex:1;padding:14px 10px;overflow-y:auto;}
-.sb-sec-title{font-size:10px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:1px;padding:0 8px;margin-bottom:6px;margin-top:10px;}
+.sb-sec{font-size:10px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:1px;padding:0 8px;margin:10px 0 6px;}
 .nb{display:flex;align-items:center;gap:9px;width:100%;padding:10px 12px;border:none;background:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:500;border-radius:9px;cursor:pointer;font-family:inherit;text-align:left;transition:.15s;}
 .nb:hover{background:rgba(255,255,255,.1);color:#fff;}
 .nb.on{background:rgba(255,255,255,.18);color:#fff;font-weight:700;}
@@ -56,18 +55,18 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
 .btn-site{width:100%;padding:9px;background:var(--gold);border:none;border-radius:9px;color:var(--br);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:7px;}
 .btn-out{width:100%;padding:9px;background:none;border:1px solid rgba(255,255,255,.2);border-radius:9px;color:rgba(255,255,255,.6);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
 
-/* 햄버거 (모바일) */
-.ham{display:none;position:fixed;top:14px;left:14px;z-index:300;background:var(--br);border:none;color:#fff;font-size:20px;width:40px;height:40px;border-radius:10px;cursor:pointer;align-items:center;justify-content:center;}
+/* 햄버거 */
+.ham{display:none;position:fixed;top:12px;left:12px;z-index:300;background:var(--br);border:none;color:#fff;font-size:18px;width:38px;height:38px;border-radius:9px;cursor:pointer;align-items:center;justify-content:center;}
 .sb-dim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:199;}
 
-/* 메인 */
-.main{margin-left:var(--sb);flex:1;padding:28px;min-height:100vh;max-width:calc(100vw - var(--sb));}
+/* 메인 콘텐츠 */
+.main{margin-left:var(--sb);flex:1;padding:28px;min-height:100vh;max-width:calc(100vw - var(--sb));overflow-x:hidden;}
 
-/* 통계 */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
+/* 통계 바 */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
 .stat{background:#fff;border-radius:12px;padding:14px 16px;border:1px solid var(--bds);}
 .stat-lbl{font-size:11px;color:var(--txt3);font-weight:600;margin-bottom:4px;}
-.stat-val{font-size:22px;font-weight:800;color:var(--br);font-family:'Noto Serif KR',serif;}
+.stat-val{font-size:20px;font-weight:800;color:var(--br);font-family:'Noto Serif KR',serif;}
 
 /* 패널 */
 .panel{display:none;}
@@ -76,68 +75,91 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
 .ph-title{font-family:'Noto Serif KR',serif;font-size:22px;font-weight:700;color:var(--br);}
 .ph-sub{font-size:13px;color:var(--txt3);margin-top:3px;}
 
-/* 카드 */
-.box{background:#fff;border-radius:14px;border:1px solid var(--bds);overflow:hidden;margin-bottom:18px;}
+/* 카드 박스 */
+.box{background:#fff;border-radius:14px;border:1px solid var(--bds);overflow:hidden;margin-bottom:20px;}
 .box-hd{padding:14px 20px;background:var(--ivory);border-bottom:1px solid var(--bds);display:flex;align-items:center;justify-content:space-between;}
 .box-hd-title{font-size:14px;font-weight:700;color:var(--br);}
 .box-cnt{font-size:11px;background:var(--gd);color:var(--gr);padding:2px 8px;border-radius:10px;font-weight:700;}
 .box-bd{padding:20px;}
 
-/* 폼 */
+/* 폼 공통 */
 .lbl{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:5px;}
-.inp{width:100%;border:1.5px solid var(--bd);border-radius:9px;padding:10px 12px;font-size:13px;font-family:inherit;background:var(--ivory);outline:none;margin-bottom:14px;transition:.15s;}
+.inp{width:100%;border:1.5px solid var(--bd);border-radius:9px;padding:10px 12px;font-size:13px;font-family:inherit;background:var(--ivory);outline:none;margin-bottom:12px;transition:.15s;}
 .inp:focus{border-color:var(--gr);background:#fff;}
-.ta{width:100%;border:1.5px solid var(--bd);border-radius:9px;padding:10px 12px;font-size:13px;font-family:inherit;background:var(--ivory);outline:none;resize:vertical;min-height:75px;margin-bottom:14px;transition:.15s;line-height:1.6;}
+.ta{width:100%;border:1.5px solid var(--bd);border-radius:9px;padding:10px 12px;font-size:13px;font-family:inherit;background:var(--ivory);outline:none;resize:vertical;min-height:75px;margin-bottom:12px;line-height:1.6;transition:.15s;}
 .ta:focus{border-color:var(--gr);background:#fff;}
-.sel{width:100%;border:1.5px solid var(--bd);border-radius:9px;padding:10px 12px;font-size:13px;font-family:inherit;background:var(--ivory);outline:none;margin-bottom:14px;}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.imgbox{width:100%;aspect-ratio:16/7;border:1.5px dashed var(--bd);border-radius:9px;background:var(--ivory);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:14px;}
-.imgbox img{width:100%;height:100%;object-fit:cover;}
-.imgbox-sq{aspect-ratio:1;}
-.size-tip{background:var(--gd);border:1px solid #C8DFC0;border-radius:8px;padding:10px 13px;margin-bottom:14px;font-size:11px;color:var(--gr);line-height:1.7;}
+.sel{width:100%;border:1.5px solid var(--bd);border-radius:9px;padding:10px 12px;font-size:13px;font-family:inherit;background:var(--ivory);outline:none;margin-bottom:12px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:600px){.g2{grid-template-columns:1fr;}}
+
+/* ══ 이미지 업로드 영역 (핵심 개선) ══ */
+.img-upload-wrap{margin-bottom:14px;}
+.img-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.img-tab{padding:6px 14px;border:1.5px solid var(--bd);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:var(--txt2);transition:.15s;font-family:inherit;}
+.img-tab.on{background:var(--gr);border-color:var(--gr);color:#fff;}
+.img-panel{display:none;}
+.img-panel.on{display:block;}
+
+/* 파일 업로드 드롭존 */
+.dropzone{
+  width:100%;border:2.5px dashed var(--bd);border-radius:12px;
+  background:var(--ivory);text-align:center;
+  padding:24px 16px;cursor:pointer;transition:.2s;position:relative;
+  overflow:hidden;
+}
+.dropzone:hover,.dropzone.drag{border-color:var(--gr);background:var(--gd);}
+.dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.dropzone-ico{font-size:32px;margin-bottom:8px;}
+.dropzone-txt{font-size:13px;font-weight:600;color:var(--txt2);}
+.dropzone-sub{font-size:11px;color:var(--txt3);margin-top:4px;}
+
+/* 이미지 미리보기 박스 */
+.imgbox{
+  width:100%;border-radius:10px;overflow:hidden;
+  border:1.5px solid var(--bds);background:var(--ivory);
+  display:flex;align-items:center;justify-content:center;
+  min-height:120px;margin-top:10px;position:relative;
+}
+.imgbox img{width:100%;height:100%;object-fit:cover;display:block;}
+.imgbox-ph{text-align:center;padding:20px;color:var(--txt3);}
+.imgbox-ph-ico{font-size:28px;margin-bottom:6px;}
+.imgbox-ph-txt{font-size:12px;}
+.imgbox-banner{aspect-ratio:16/7;}
+.imgbox-sq{aspect-ratio:1;max-width:240px;}
+.imgbox-popup{aspect-ratio:4/3;}
+.imgbox-notice{aspect-ratio:16/7;}
+
+/* 이미지 삭제 버튼 */
+.img-clear{
+  position:absolute;top:8px;right:8px;
+  background:rgba(0,0,0,.6);border:none;color:#fff;
+  border-radius:50%;width:26px;height:26px;font-size:14px;
+  cursor:pointer;display:none;align-items:center;justify-content:center;
+}
+.imgbox:hover .img-clear{display:flex;}
+
+/* 사이즈 안내 */
+.size-tip{
+  background:var(--gd);border:1px solid #C8DFC0;border-radius:8px;
+  padding:9px 13px;margin-bottom:12px;font-size:11px;color:var(--gr);line-height:1.7;
+}
 .size-tip strong{font-weight:700;color:var(--br);}
-.hint{font-size:11px;color:var(--txt3);margin-top:-10px;margin-bottom:12px;}
-
-/* 버튼 */
-.btn-save{padding:10px 20px;border:none;border-radius:9px;background:linear-gradient(135deg,var(--gr),var(--gm));color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
-.btn-save:hover{opacity:.9;}
-.btn-del{padding:10px 14px;border:1.5px solid #FCA5A5;border-radius:9px;background:#FFF5F5;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
-.btn-add{width:100%;padding:12px;border:2px dashed var(--bd);border-radius:9px;background:none;color:var(--txt3);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;}
-.btn-add:hover{border-color:var(--gr);color:var(--gr);background:var(--gd);}
-.btn-row{display:flex;gap:8px;margin-top:4px;}
-
-/* 아이템 카드 */
-.ilist{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
-.ic{border:1.5px solid var(--bds);border-radius:12px;overflow:hidden;background:#fff;}
-.ic-hd{padding:12px 14px;background:var(--ivory);display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:10px;}
-.ic-hd-l{display:flex;align-items:center;gap:10px;min-width:0;}
-.ic-thumb{width:54px;height:54px;border-radius:8px;border:1px solid var(--bds);background:var(--ivory);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;}
-.ic-thumb img{width:100%;height:100%;object-fit:cover;}
-.ic-name{font-size:13px;font-weight:700;color:var(--br);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ic-sub{font-size:11px;color:var(--txt3);margin-top:2px;}
-.ic-bd{padding:16px;border-top:1px solid var(--bds);display:none;}
-.ic-bd.open{display:block;}
-
-/* 배지 선택 */
-.badge-opts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
-.bo{padding:3px 11px;border-radius:20px;border:1.5px solid var(--bd);font-size:11px;font-weight:700;cursor:pointer;background:#fff;transition:.15s;}
-.bo.on{border-color:var(--gr);background:var(--gd);color:var(--gr);}
 
 /* 토글 */
-.tog-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-.tog{position:relative;width:44px;height:24px;}
+.tog-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.tog{position:relative;width:44px;height:24px;flex-shrink:0;}
 .tog input{opacity:0;width:0;height:0;}
 .tog-sl{position:absolute;inset:0;border-radius:12px;background:#D1C4B0;cursor:pointer;transition:.2s;}
-.tog-sl:before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;bottom:3px;left:3px;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.tog-sl:before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;bottom:3px;left:3px;transition:.2s;}
 .tog input:checked+.tog-sl{background:var(--gr);}
 .tog input:checked+.tog-sl:before{transform:translateX(20px);}
 .tog-lbl{font-size:13px;font-weight:600;color:var(--txt);}
 
-/* 팝업 미리보기 */
-.pp-wrap{display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:start;}
-.pp-prev-box{background:#fff;border-radius:14px;border:1px solid var(--bds);padding:16px;}
+/* 팝업 레이아웃 */
+.pp-wrap{display:grid;grid-template-columns:1fr 260px;gap:20px;align-items:start;}
+.pp-prev-card{background:#fff;border-radius:14px;border:1px solid var(--bds);padding:16px;position:sticky;top:20px;}
 .pp-prev-title{font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:10px;}
-.pp-prev{border:2px solid var(--bds);border-radius:16px;overflow:hidden;}
+.pp-prev{border:2px solid var(--bds);border-radius:14px;overflow:hidden;}
 .pp-img{width:100%;aspect-ratio:4/3;background:var(--br);display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .pp-img img{width:100%;height:100%;object-fit:cover;}
 .pp-body{padding:12px;}
@@ -147,43 +169,69 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
 .pp-btn{flex:1;padding:9px;border:none;background:none;font-size:10px;color:var(--txt3);cursor:default;}
 .pp-btn.main{font-weight:700;color:var(--gr);border-left:1px solid var(--bds);}
 
+/* 배지 선택 */
+.badge-opts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.bo{padding:4px 12px;border-radius:20px;border:1.5px solid var(--bd);font-size:11px;font-weight:700;cursor:pointer;background:#fff;transition:.15s;}
+.bo.on{border-color:var(--gr);background:var(--gd);color:var(--gr);}
+
+/* 아이템 카드 */
+.ilist{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+.ic{border:1.5px solid var(--bds);border-radius:12px;overflow:hidden;background:#fff;}
+.ic-hd{padding:12px 14px;background:var(--ivory);display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:10px;}
+.ic-hd-l{display:flex;align-items:center;gap:10px;min-width:0;flex:1;}
+.ic-thumb{width:52px;height:52px;border-radius:8px;border:1px solid var(--bds);background:var(--ivory);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.ic-thumb img{width:100%;height:100%;object-fit:cover;}
+.ic-name{font-size:13px;font-weight:700;color:var(--br);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ic-sub{font-size:11px;color:var(--txt3);margin-top:2px;}
+.ic-bd{padding:16px;border-top:1px solid var(--bds);display:none;}
+.ic-bd.open{display:block;}
+
+/* 버튼 */
+.btn-save{padding:10px 20px;border:none;border-radius:9px;background:linear-gradient(135deg,var(--gr),var(--gm));color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-del{padding:10px 14px;border:1.5px solid #FCA5A5;border-radius:9px;background:#FFF5F5;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-add{width:100%;padding:12px;border:2px dashed var(--bd);border-radius:9px;background:none;color:var(--txt3);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;}
+.btn-add:hover{border-color:var(--gr);color:var(--gr);background:var(--gd);}
+.btn-row{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+
 /* 토스트 */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--br);color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.25);}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--br);color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;z-index:9999;}
 .toast.show{opacity:1;}
 
 /* ══ 반응형 ══ */
 @media(max-width:1100px){
   .stats{grid-template-columns:repeat(2,1fr);}
   .pp-wrap{grid-template-columns:1fr;}
+  .pp-prev-card{position:static;}
 }
 @media(max-width:900px){
   :root{--sb:220px;}
-  .g2{grid-template-columns:1fr;}
 }
-@media(max-width:700px){
-  body{align-items:flex-start;}
-  #wLogin{padding:16px;}
-  .lcard{padding:28px 20px;}
-
+@media(max-width:768px){
   /* 모바일: 사이드바 슬라이드 */
   .sb{transform:translateX(-100%);width:240px;}
   .sb.open{transform:translateX(0);}
   .sb-dim.show{display:block;}
   .ham{display:flex;}
-  .main{margin-left:0;padding:16px;padding-top:64px;max-width:100vw;}
-  .stats{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .main{margin-left:0;padding:16px;padding-top:62px;max-width:100vw;}
+  .stats{grid-template-columns:1fr 1fr;gap:10px;}
+  .stat-val{font-size:18px;}
   .ph-title{font-size:18px;}
   .pp-wrap{grid-template-columns:1fr;}
+  .g2{grid-template-columns:1fr;}
+  body{align-items:flex-start;}
+  #wLogin{padding:16px;}
+  .lcard{padding:28px 20px;}
 }
 @media(max-width:480px){
   .stats{grid-template-columns:1fr 1fr;}
-  .g2{grid-template-columns:1fr;}
+  .box-bd{padding:14px;}
+  .ic-bd{padding:14px;}
 }
 </style>
 </head>
 <body>
 
-<!-- ══ 로그인 ══ -->
+<!-- 로그인 -->
 <div id="wLogin">
   <div class="lcard">
     <div class="llogo">
@@ -204,13 +252,11 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
   </div>
 </div>
 
-<!-- ══ 관리자 앱 ══ -->
+<!-- 관리자 앱 -->
 <div id="wAdmin">
-  <!-- 햄버거 (모바일) -->
   <button class="ham" id="hamBtn">☰</button>
   <div class="sb-dim" id="sbDim"></div>
 
-  <!-- 사이드바 -->
   <aside class="sb" id="sb">
     <div class="sb-logo">
       <div class="sb-logo-ico">🍐</div>
@@ -218,7 +264,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
       <div class="sb-logo-sub">Admin Dashboard</div>
     </div>
     <nav class="sb-nav">
-      <div class="sb-sec-title">콘텐츠 관리</div>
+      <div class="sb-sec">콘텐츠 관리</div>
       <button class="nb on" id="nb-popup" onclick="goTab('popup')"><span class="nb-ico">🪟</span>팝업 배너</button>
       <button class="nb" id="nb-banner" onclick="goTab('banner')"><span class="nb-ico">🖼️</span>메인 배너</button>
       <button class="nb" id="nb-product" onclick="goTab('product')"><span class="nb-ico">📦</span>상품 관리</button>
@@ -230,11 +276,10 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
     </div>
   </aside>
 
-  <!-- 메인 -->
   <main class="main">
     <div class="stats" id="stats"></div>
 
-    <!-- 팝업 패널 -->
+    <!-- ══ 팝업 패널 ══ -->
     <div class="panel on" id="panel-popup">
       <div class="ph"><div class="ph-title">🪟 팝업 배너</div><div class="ph-sub">접속 시 표시되는 팝업을 설정합니다.</div></div>
       <div class="pp-wrap">
@@ -249,14 +294,35 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
             <input class="inp" id="pp_title" placeholder="예: 남양주 먹골배 입고!" oninput="prevPopup()">
             <label class="lbl">팝업 내용</label>
             <textarea class="ta" id="pp_desc" placeholder="팝업 내용을 입력하세요." oninput="prevPopup()"></textarea>
-            <label class="lbl">이미지 URL</label>
-            <input class="inp" id="pp_img" placeholder="https://drive.google.com/uc?export=view&id=..." oninput="prevPopup()">
-            <div class="size-tip">📐 <strong>권장: 750 × 560px</strong> (4:3 비율) · JPG/PNG · 1MB 이하</div>
-            <div class="imgbox" id="pp_imgbox"><span style="color:var(--txt3);font-size:12px;">이미지 미리보기</span></div>
+            <label class="lbl">팝업 이미지</label>
+            <div class="img-upload-wrap" id="pp_img_wrap">
+              <div class="img-tabs">
+                <button class="img-tab on" onclick="switchTab('pp','file')">📁 파일 업로드</button>
+                <button class="img-tab" onclick="switchTab('pp','url')">🔗 URL 입력</button>
+              </div>
+              <div class="img-panel on" id="pp_panel_file">
+                <div class="dropzone" id="pp_dropzone">
+                  <input type="file" accept="image/*" onchange="handleFile(this,'pp')">
+                  <div class="dropzone-ico">📷</div>
+                  <div class="dropzone-txt">클릭하거나 이미지를 끌어다 놓으세요</div>
+                  <div class="dropzone-sub">JPG · PNG · WEBP</div>
+                </div>
+              </div>
+              <div class="img-panel" id="pp_panel_url">
+                <input class="inp" id="pp_url_inp" placeholder="https://drive.google.com/uc?export=view&id=..." oninput="handleUrl(this,'pp')" style="margin-bottom:0;">
+                <div style="font-size:11px;color:var(--txt3);margin-top:4px;">구글 드라이브: 파일 우클릭 → 공유 → 링크의 ID를 위 형식으로 입력</div>
+              </div>
+              <div class="size-tip" style="margin-top:10px;">📐 <strong>권장: 750 × 560px</strong> (4:3 비율) · 1MB 이하</div>
+              <div class="imgbox imgbox-popup" id="pp_imgbox">
+                <div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 미리보기</div></div>
+                <button class="img-clear" onclick="clearImg('pp')">✕</button>
+              </div>
+            </div>
+            <input type="hidden" id="pp_img_val">
             <div class="btn-row"><button class="btn-save" onclick="savePopup()">💾 팝업 저장</button></div>
           </div>
         </div>
-        <div class="pp-prev-box">
+        <div class="pp-prev-card">
           <div class="pp-prev-title">미리보기</div>
           <div class="pp-prev">
             <div class="pp-img" id="pp_prev_img"><span style="font-size:32px;">🍐</span></div>
@@ -273,7 +339,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
       </div>
     </div>
 
-    <!-- 배너 패널 -->
+    <!-- ══ 배너 패널 ══ -->
     <div class="panel" id="panel-banner">
       <div class="ph"><div class="ph-title">🖼️ 메인 배너</div><div class="ph-sub">홈페이지 상단 롤링 배너를 관리합니다.</div></div>
       <div class="box">
@@ -282,7 +348,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
       </div>
     </div>
 
-    <!-- 상품 패널 -->
+    <!-- ══ 상품 패널 ══ -->
     <div class="panel" id="panel-product">
       <div class="ph"><div class="ph-title">📦 상품 관리</div><div class="ph-sub">판매 상품을 관리합니다.</div></div>
       <div class="box">
@@ -291,7 +357,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
       </div>
     </div>
 
-    <!-- 공지 패널 -->
+    <!-- ══ 공지 패널 ══ -->
     <div class="panel" id="panel-notice">
       <div class="ph"><div class="ph-title">📋 공지사항</div><div class="ph-sub">공지·이벤트·안내를 관리합니다.</div></div>
       <div class="box">
@@ -335,9 +401,11 @@ document.getElementById('loginBtn').onclick=function(){
   if(id==='gwangjin'&&pw==='105709'){
     DB=loadDB();
     document.getElementById('wLogin').style.display='none';
-    document.getElementById('wAdmin').classList.add('show');
+    var wa=document.getElementById('wAdmin');
+    wa.classList.add('show');
     document.body.style.background='#F4F1EC';
     document.body.style.alignItems='stretch';
+    document.body.style.justifyContent='flex-start';
     initAll();
   }else{
     document.getElementById('lgErr').style.display='block';
@@ -366,25 +434,131 @@ document.getElementById('sbDim').onclick=function(){
   document.getElementById('sbDim').classList.remove('show');
 };
 
-/* ══ 탭 ══ */
+/* ══ 탭 전환 ══ */
 function goTab(t){
   ['popup','banner','product','notice'].forEach(function(x){
     document.getElementById('panel-'+x).classList.toggle('on',x===t);
     document.getElementById('nb-'+x).classList.toggle('on',x===t);
   });
-  // 모바일: 탭 이동 시 사이드바 닫기
   document.getElementById('sb').classList.remove('open');
   document.getElementById('sbDim').classList.remove('show');
+}
+
+/* ══ 이미지 탭 전환 ══ */
+function switchTab(prefix,tab){
+  ['file','url'].forEach(function(t){
+    document.getElementById(prefix+'_panel_'+t).classList.toggle('on',t===tab);
+  });
+  var tabs=document.querySelectorAll('#panel-'+currentPanel+' .img-tab, .pp-prev-card ~ .box .img-tab, .box-bd .img-tab');
+  // 해당 prefix의 탭 버튼 업데이트
+  var wrap=document.getElementById(prefix+'_img_wrap')||document.getElementById(prefix+'_img_wrap_dyn');
+  if(wrap){
+    wrap.querySelectorAll('.img-tab').forEach(function(el){
+      el.classList.toggle('on', el.textContent.indexOf(tab==='file'?'파일':'URL')>=0);
+    });
+  }
+}
+var currentPanel='popup';
+
+/* ══ 이미지 처리 ══ */
+function handleFile(input,prefix){
+  var file=input.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    setImgVal(prefix, e.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleUrl(input,prefix){
+  setImgVal(prefix, input.value.trim());
+}
+
+function setImgVal(prefix, val){
+  // hidden input에 값 저장
+  var hid=document.getElementById(prefix+'_img_val');
+  if(hid) hid.value=val;
+  // 미리보기 업데이트
+  var box=document.getElementById(prefix+'_imgbox');
+  if(box){
+    if(val){
+      box.innerHTML='<img src="'+val+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div class=imgbox-ph><div class=imgbox-ph-ico>❌</div><div class=imgbox-ph-txt>이미지를 불러올 수 없습니다</div></div>\"><button class=\"img-clear\" onclick=\"clearImg(\''+prefix+'\')\">✕</button>';
+    }else{
+      box.innerHTML='<div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 미리보기</div></div>';
+    }
+  }
+  // 팝업 미리보기 동기화
+  if(prefix==='pp') prevPopup();
+}
+
+function clearImg(prefix){
+  var hid=document.getElementById(prefix+'_img_val');
+  if(hid) hid.value='';
+  var inp=document.getElementById(prefix+'_url_inp');
+  if(inp) inp.value='';
+  var box=document.getElementById(prefix+'_imgbox');
+  if(box) box.innerHTML='<div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 미리보기</div></div>';
+  if(prefix==='pp') prevPopup();
+}
+
+/* 동적 이미지 위젯 HTML 생성 */
+function imgWidget(prefix, currentVal, boxClass, sizeText){
+  var id=prefix+'_img_wrap_dyn';
+  var h='<div class="img-upload-wrap" id="'+id+'">'
+    +'<div class="img-tabs">'
+      +'<button class="img-tab on" onclick="switchTabDyn(\''+prefix+'\',\'file\')">📁 파일 업로드</button>'
+      +'<button class="img-tab" onclick="switchTabDyn(\''+prefix+'\',\'url\')">🔗 URL 입력</button>'
+    +'</div>'
+    +'<div class="img-panel on" id="'+prefix+'_panel_file_dyn">'
+      +'<div class="dropzone" id="'+prefix+'_dropzone">'
+        +'<input type="file" accept="image/*" onchange="handleFile(this,\''+prefix+'\')">'
+        +'<div class="dropzone-ico">📷</div>'
+        +'<div class="dropzone-txt">클릭하거나 이미지를 끌어다 놓으세요</div>'
+        +'<div class="dropzone-sub">JPG · PNG · WEBP</div>'
+      +'</div>'
+    +'</div>'
+    +'<div class="img-panel" id="'+prefix+'_panel_url_dyn">'
+      +'<input class="inp" id="'+prefix+'_url_inp" placeholder="https://drive.google.com/uc?export=view&id=..." oninput="handleUrl(this,\''+prefix+'\')" style="margin-bottom:0;">'
+      +'<div style="font-size:11px;color:var(--txt3);margin-top:4px;">구글 드라이브 링크를 붙여넣으세요.</div>'
+    +'</div>'
+    +'<div class="size-tip" style="margin-top:10px;">📐 '+sizeText+'</div>'
+    +'<div class="imgbox '+boxClass+'" id="'+prefix+'_imgbox">';
+  if(currentVal){
+    h+='<img src="'+currentVal+'" style="width:100%;height:100%;object-fit:cover;"><button class="img-clear" onclick="clearImg(\''+prefix+'\')">✕</button>';
+  }else{
+    h+='<div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 미리보기</div></div>';
+  }
+  h+='</div>'
+    +'<input type="hidden" id="'+prefix+'_img_val" value="'+(currentVal||')+'">'
+  +'</div>';
+  return h;
+}
+
+function switchTabDyn(prefix,tab){
+  ['file','url'].forEach(function(t){
+    var el=document.getElementById(prefix+'_panel_'+t+'_dyn');
+    if(el) el.classList.toggle('on',t===tab);
+  });
+  var wrap=document.getElementById(prefix+'_img_wrap_dyn');
+  if(wrap){
+    wrap.querySelectorAll('.img-tab').forEach(function(el,i){
+      el.classList.toggle('on',(tab==='file'&&i===0)||(tab==='url'&&i===1));
+    });
+  }
 }
 
 /* ══ 초기화 ══ */
 function initAll(){renderStats();loadPopupForm();renderBanners();renderProducts();renderNotices();}
 function renderStats(){
   document.getElementById('stats').innerHTML=
-    '<div class="stat"><div class="stat-lbl">🖼️ 메인배너</div><div class="stat-val">'+DB.banners.length+'개</div></div>'+
-    '<div class="stat"><div class="stat-lbl">📦 상품</div><div class="stat-val">'+DB.products.length+'개</div></div>'+
-    '<div class="stat"><div class="stat-lbl">📋 공지</div><div class="stat-val">'+DB.notices.length+'개</div></div>'+
-    '<div class="stat"><div class="stat-lbl">🪟 팝업</div><div class="stat-val">'+(DB.popup.show?'ON':'OFF')+'</div></div>';
+    stat('🖼️','메인배너',DB.banners.length+'개')+
+    stat('📦','상품',DB.products.length+'개')+
+    stat('📋','공지',DB.notices.length+'개')+
+    stat('🪟','팝업',DB.popup.show?'ON':'OFF');
+}
+function stat(ico,lbl,val){
+  return '<div class="stat"><div class="stat-lbl">'+ico+' '+lbl+'</div><div class="stat-val">'+val+'</div></div>';
 }
 
 /* ══ 팝업 ══ */
@@ -394,24 +568,26 @@ function loadPopupForm(){
   document.getElementById('pp_show_lbl').textContent=p.show?'팝업 표시 중':'팝업 숨김';
   document.getElementById('pp_title').value=p.title||'';
   document.getElementById('pp_desc').value=p.desc||'';
-  document.getElementById('pp_img').value=p.imgUrl||'';
+  document.getElementById('pp_img_val').value=p.imgUrl||'';
+  if(p.imgUrl){
+    document.getElementById('pp_url_inp').value=p.imgUrl;
+    setImgVal('pp',p.imgUrl);
+  }
   prevPopup();
 }
 function prevPopup(){
   var t=document.getElementById('pp_title').value||'팝업 제목';
   var d=document.getElementById('pp_desc').value||'팝업 내용';
-  var img=document.getElementById('pp_img').value;
+  var img=document.getElementById('pp_img_val').value;
   var show=document.getElementById('pp_show').checked;
   document.getElementById('pp_prev_title').textContent=t;
   document.getElementById('pp_prev_desc').textContent=d;
   document.getElementById('pp_show_lbl').textContent=show?'팝업 표시 중':'팝업 숨김';
   var b=document.getElementById('pp_prev_img');
   b.innerHTML=img?'<img src="'+img+'" style="width:100%;height:100%;object-fit:cover;">':'<span style="font-size:32px;">🍐</span>';
-  var ib=document.getElementById('pp_imgbox');
-  ib.innerHTML=img?'<img src="'+img+'" style="width:100%;height:100%;object-fit:cover;">':'<span style="color:var(--txt3);font-size:12px;">이미지 미리보기</span>';
 }
 function savePopup(){
-  DB.popup={show:document.getElementById('pp_show').checked,title:document.getElementById('pp_title').value,desc:document.getElementById('pp_desc').value,imgUrl:document.getElementById('pp_img').value};
+  DB.popup={show:document.getElementById('pp_show').checked,title:document.getElementById('pp_title').value,desc:document.getElementById('pp_desc').value,imgUrl:document.getElementById('pp_img_val').value};
   saveDB();renderStats();toast('✅ 팝업 저장됐습니다!');
 }
 
@@ -420,49 +596,68 @@ function renderBanners(){
   document.getElementById('banner_cnt').textContent=DB.banners.length+'개';
   var h='';
   DB.banners.forEach(function(b,i){
-    var th=b.imgUrl?'<img src="'+b.imgUrl+'">':(b.title.replace(/\n.*/,'').charAt(0)||'🍐');
-    h+='<div class="ic"><div class="ic-hd" onclick="togIC(\'b\','+i+')"><div class="ic-hd-l"><div class="ic-thumb">'+th+'</div><div><div class="ic-name">'+esc(b.title.replace(/\n/g,' '))+'</div><div class="ic-sub">'+esc(b.sub)+'</div></div></div><span style="color:var(--txt3);font-size:12px;">배너 '+(i+1)+' ▾</span></div><div class="ic-bd" id="b_bd_'+i+'">'+bForm(b,i)+'</div></div>';
+    var th=b.imgUrl?'<img src="'+b.imgUrl+'" onerror="this.style.display=\'none\'">':'🍐';
+    h+='<div class="ic">'
+      +'<div class="ic-hd" onclick="togIC(\'b\','+i+')">'
+        +'<div class="ic-hd-l"><div class="ic-thumb">'+th+'</div>'
+        +'<div><div class="ic-name">'+esc(b.title.replace(/\n/g,' '))+'</div><div class="ic-sub">'+esc(b.sub)+'</div></div></div>'
+        +'<span style="color:var(--txt3);font-size:12px;">배너'+(i+1)+' ▾</span>'
+      +'</div>'
+      +'<div class="ic-bd" id="b_bd_'+i+'">'+bForm(b,i)+'</div></div>';
   });
-  document.getElementById('bannerList').innerHTML=h||'<p style="color:var(--txt3);font-size:13px;text-align:center;padding:16px;">등록된 배너가 없습니다.</p>';
+  document.getElementById('bannerList').innerHTML=h||'<p style="color:var(--txt3);text-align:center;padding:16px;font-size:13px;">등록된 배너가 없습니다.</p>';
 }
 function bForm(b,i){
+  var pfx='bi'+i;
   return '<label class="lbl">배너 제목</label><textarea class="ta" id="b_t_'+i+'" style="min-height:55px;">'+esc(b.title)+'</textarea>'
     +'<label class="lbl">부제목</label><input class="inp" id="b_s_'+i+'" value="'+esc(b.sub)+'">'
-    +'<label class="lbl">이미지 URL</label><input class="inp" id="b_i_'+i+'" value="'+esc(b.imgUrl||'')+'" placeholder="https://drive.google.com/uc?export=view&id=..." oninput="prevBI('+i+')">'
-    +'<div class="size-tip">📐 <strong>권장: 1200 × 525px</strong> (16:7 비율) · JPG/PNG · 2MB 이하</div>'
-    +'<div class="imgbox" id="b_ib_'+i+'">'+(b.imgUrl?'<img src="'+esc(b.imgUrl)+'">':'<span style="color:var(--txt3);font-size:12px;">이미지 미리보기</span>')+'</div>'
+    +'<label class="lbl">배너 이미지</label>'
+    +imgWidget(pfx, b.imgUrl||'', 'imgbox-banner', '<strong>권장: 1200 × 525px</strong> (16:7) · JPG/PNG · 2MB 이하')
     +'<div class="btn-row"><button class="btn-save" onclick="saveBanner('+i+')">💾 저장</button><button class="btn-del" onclick="delBanner('+i+')">🗑 삭제</button></div>';
 }
-function prevBI(i){var u=document.getElementById('b_i_'+i).value;document.getElementById('b_ib_'+i).innerHTML=u?'<img src="'+u+'">':'<span style="color:var(--txt3);font-size:12px;">이미지 미리보기</span>';}
-function saveBanner(i){DB.banners[i]={title:document.getElementById('b_t_'+i).value,sub:document.getElementById('b_s_'+i).value,imgUrl:document.getElementById('b_i_'+i).value,bg:DB.banners[i].bg||'#2D1F0E'};saveDB();renderBanners();renderStats();toast('✅ 배너 저장!');}
+function saveBanner(i){
+  var pfx='bi'+i;
+  DB.banners[i]={title:document.getElementById('b_t_'+i).value,sub:document.getElementById('b_s_'+i).value,imgUrl:getImgVal(pfx),bg:DB.banners[i].bg||'#2D1F0E'};
+  saveDB();renderBanners();renderStats();toast('✅ 배너 저장!');
+}
 function delBanner(i){if(!confirm('배너를 삭제할까요?'))return;DB.banners.splice(i,1);saveDB();renderBanners();renderStats();toast('🗑 삭제됐습니다.');}
-function addBanner(){DB.banners.push({title:'새 배너',sub:'부제목을 입력하세요',imgUrl:'',bg:'#2D1F0E'});saveDB();renderBanners();renderStats();setTimeout(function(){togIC('b',DB.banners.length-1);},80);toast('➕ 배너 추가!');}
+function addBanner(){DB.banners.push({title:'새 배너',sub:'부제목',imgUrl:'',bg:'#2D1F0E'});saveDB();renderBanners();renderStats();setTimeout(function(){togIC('b',DB.banners.length-1);},80);toast('➕ 배너 추가!');}
 
 /* ══ 상품 ══ */
 function renderProducts(){
   document.getElementById('product_cnt').textContent=DB.products.length+'개';
   var h='';
   DB.products.forEach(function(p,i){
-    var th=p.imgUrl?'<img src="'+p.imgUrl+'">':(p.name.charAt(0)||'🍐');
+    var th=p.imgUrl?'<img src="'+p.imgUrl+'" onerror="this.style.display=\'none\'">':'🍐';
     var bj=p.badge?'<span style="margin-left:5px;background:var(--gd);color:var(--gr);padding:1px 6px;border-radius:6px;font-size:10px;font-weight:700;">'+esc(p.badge)+'</span>':'';
-    h+='<div class="ic"><div class="ic-hd" onclick="togIC(\'p\','+i+')"><div class="ic-hd-l"><div class="ic-thumb">'+th+'</div><div><div class="ic-name">'+esc(p.name)+bj+'</div><div class="ic-sub">'+esc(p.price)+'</div></div></div><span style="color:var(--txt3);">▾</span></div><div class="ic-bd" id="p_bd_'+i+'">'+pForm(p,i)+'</div></div>';
+    h+='<div class="ic">'
+      +'<div class="ic-hd" onclick="togIC(\'p\','+i+')">'
+        +'<div class="ic-hd-l"><div class="ic-thumb">'+th+'</div>'
+        +'<div><div class="ic-name">'+esc(p.name)+bj+'</div><div class="ic-sub">'+esc(p.price)+'</div></div></div>'
+        +'<span style="color:var(--txt3);">▾</span>'
+      +'</div>'
+      +'<div class="ic-bd" id="p_bd_'+i+'">'+pForm(p,i)+'</div></div>';
   });
-  document.getElementById('productList').innerHTML=h||'<p style="color:var(--txt3);font-size:13px;text-align:center;padding:16px;">등록된 상품이 없습니다.</p>';
+  document.getElementById('productList').innerHTML=h||'<p style="color:var(--txt3);text-align:center;padding:16px;font-size:13px;">등록된 상품이 없습니다.</p>';
 }
 function pForm(p,i){
+  var pfx='pi'+i;
   var bgs=['','BEST','신상','실속','한정','품절'];
   var bo=bgs.map(function(b){return '<div class="bo'+(p.badge===b?' on':'')+'" onclick="selBadge('+i+',\''+b+'\')">'+( b||'없음')+'</div>';}).join('');
-  return '<div class="g2"><div><label class="lbl">상품명</label><input class="inp" id="p_n_'+i+'" value="'+esc(p.name)+'"></div><div><label class="lbl">가격</label><input class="inp" id="p_pr_'+i+'" value="'+esc(p.price)+'" placeholder="45,000원"></div></div>'
+  return '<div class="g2"><div><label class="lbl">상품명</label><input class="inp" id="p_n_'+i+'" value="'+esc(p.name)+'"></div>'
+    +'<div><label class="lbl">가격</label><input class="inp" id="p_pr_'+i+'" value="'+esc(p.price)+'" placeholder="45,000원"></div></div>'
     +'<label class="lbl">설명</label><textarea class="ta" id="p_d_'+i+'">'+esc(p.desc)+'</textarea>'
     +'<label class="lbl">뱃지</label><div class="badge-opts" id="p_bw_'+i+'">'+bo+'</div><input type="hidden" id="p_b_'+i+'" value="'+esc(p.badge)+'">'
-    +'<label class="lbl">상품 이미지 URL</label><input class="inp" id="p_i_'+i+'" value="'+esc(p.imgUrl||'')+'" placeholder="https://drive.google.com/uc?export=view&id=..." oninput="prevPI('+i+')">'
-    +'<div class="size-tip">📐 <strong>권장: 600 × 600px</strong> (1:1 정사각형) · JPG/PNG · 1MB 이하 · 흰 배경 권장</div>'
-    +'<div class="imgbox imgbox-sq" id="p_ib_'+i+'">'+(p.imgUrl?'<img src="'+esc(p.imgUrl)+'">':'<span style="color:var(--txt3);font-size:12px;">이미지 미리보기</span>')+'</div>'
+    +'<label class="lbl">상품 이미지</label>'
+    +imgWidget(pfx, p.imgUrl||'', 'imgbox-sq', '<strong>권장: 600 × 600px</strong> (1:1 정사각형) · 흰 배경 권장')
     +'<div class="btn-row"><button class="btn-save" onclick="saveProduct('+i+')">💾 저장</button><button class="btn-del" onclick="delProduct('+i+')">🗑 삭제</button></div>';
 }
 function selBadge(i,v){document.getElementById('p_b_'+i).value=v;document.querySelectorAll('#p_bw_'+i+' .bo').forEach(function(e){e.classList.toggle('on',e.textContent===(v||'없음'));});}
-function prevPI(i){var u=document.getElementById('p_i_'+i).value;document.getElementById('p_ib_'+i).innerHTML=u?'<img src="'+u+'">':'<span style="color:var(--txt3);font-size:12px;">이미지 미리보기</span>';}
-function saveProduct(i){DB.products[i]={name:document.getElementById('p_n_'+i).value,price:document.getElementById('p_pr_'+i).value,desc:document.getElementById('p_d_'+i).value,badge:document.getElementById('p_b_'+i).value,imgUrl:document.getElementById('p_i_'+i).value};saveDB();renderProducts();renderStats();toast('✅ 상품 저장!');}
+function saveProduct(i){
+  var pfx='pi'+i;
+  DB.products[i]={name:document.getElementById('p_n_'+i).value,price:document.getElementById('p_pr_'+i).value,desc:document.getElementById('p_d_'+i).value,badge:document.getElementById('p_b_'+i).value,imgUrl:getImgVal(pfx)};
+  saveDB();renderProducts();renderStats();toast('✅ 상품 저장!');
+}
 function delProduct(i){if(!confirm('"'+DB.products[i].name+'" 삭제할까요?'))return;DB.products.splice(i,1);saveDB();renderProducts();renderStats();toast('🗑 삭제됐습니다.');}
 function addProduct(){DB.products.push({name:'새 상품',desc:'설명을 입력하세요.',price:'',badge:'',imgUrl:''});saveDB();renderProducts();renderStats();setTimeout(function(){togIC('p',DB.products.length-1);},80);toast('➕ 상품 추가!');}
 
@@ -472,27 +667,40 @@ function renderNotices(){
   var tm={notice:'📢 공지',event:'🎉 이벤트',info:'ℹ️ 안내'};
   var h='';
   DB.notices.forEach(function(n,i){
-    h+='<div class="ic"><div class="ic-hd" onclick="togIC(\'n\','+i+')"><div class="ic-hd-l"><div><div class="ic-name">'+esc(n.title)+'</div><div class="ic-sub">'+(tm[n.type]||'공지')+' · '+n.date+'</div></div></div><span style="color:var(--txt3);">▾</span></div><div class="ic-bd" id="n_bd_'+i+'">'+nForm(n,i)+'</div></div>';
+    h+='<div class="ic">'
+      +'<div class="ic-hd" onclick="togIC(\'n\','+i+')">'
+        +'<div class="ic-hd-l"><div><div class="ic-name">'+esc(n.title)+'</div><div class="ic-sub">'+(tm[n.type]||'공지')+' · '+n.date+'</div></div></div>'
+        +'<span style="color:var(--txt3);">▾</span>'
+      +'</div>'
+      +'<div class="ic-bd" id="n_bd_'+i+'">'+nForm(n,i)+'</div></div>';
   });
-  document.getElementById('noticeList').innerHTML=h||'<p style="color:var(--txt3);font-size:13px;text-align:center;padding:16px;">등록된 공지가 없습니다.</p>';
+  document.getElementById('noticeList').innerHTML=h||'<p style="color:var(--txt3);text-align:center;padding:16px;font-size:13px;">등록된 공지가 없습니다.</p>';
 }
 function nForm(n,i){
-  return '<div class="g2"><div><label class="lbl">유형</label><select class="sel" id="n_tp_'+i+'"><option value="notice"'+(n.type==='notice'?' selected':'')+'>📢 공지</option><option value="event"'+(n.type==='event'?' selected':'')+'>🎉 이벤트</option><option value="info"'+(n.type==='info'?' selected':'')+'>ℹ️ 안내</option></select></div><div><label class="lbl">날짜</label><input class="inp" type="date" id="n_dt_'+i+'" value="'+n.date+'"></div></div>'
+  var pfx='ni'+i;
+  return '<div class="g2"><div><label class="lbl">유형</label><select class="sel" id="n_tp_'+i+'">'
+    +'<option value="notice"'+(n.type==='notice'?' selected':'')+'>📢 공지</option>'
+    +'<option value="event"'+(n.type==='event'?' selected':'')+'>🎉 이벤트</option>'
+    +'<option value="info"'+(n.type==='info'?' selected':'')+'>ℹ️ 안내</option>'
+    +'</select></div>'
+    +'<div><label class="lbl">날짜</label><input class="inp" type="date" id="n_dt_'+i+'" value="'+n.date+'"></div></div>'
     +'<label class="lbl">제목</label><input class="inp" id="n_tt_'+i+'" value="'+esc(n.title)+'">'
-    +'<label class="lbl">내용</label><textarea class="ta" id="n_tx_'+i+'" style="min-height:90px;">'+esc(n.text)+'</textarea>'
-    +'<label class="lbl">이미지 URL <span style="font-weight:400;color:var(--txt3);">(선택)</span></label>'
-    +'<input class="inp" id="n_i_'+i+'" value="'+esc(n.imgUrl||'')+'" placeholder="https://..." oninput="prevNI('+i+')">'
-    +'<div class="size-tip">📐 <strong>권장: 750 × 420px</strong> · JPG/PNG · 1MB 이하</div>'
-    +'<div class="imgbox" id="n_ib_'+i+'">'+(n.imgUrl?'<img src="'+esc(n.imgUrl)+'">':'<span style="color:var(--txt3);font-size:12px;">이미지 미리보기</span>')+'</div>'
+    +'<label class="lbl">내용</label><textarea class="ta" id="n_tx_'+i+'" style="min-height:80px;">'+esc(n.text)+'</textarea>'
+    +'<label class="lbl">이미지 <span style="font-weight:400;color:var(--txt3);">(선택)</span></label>'
+    +imgWidget(pfx, n.imgUrl||'', 'imgbox-notice', '<strong>권장: 750 × 420px</strong> · JPG/PNG · 1MB 이하')
     +'<div class="btn-row"><button class="btn-save" onclick="saveNotice('+i+')">💾 저장</button><button class="btn-del" onclick="delNotice('+i+')">🗑 삭제</button></div>';
 }
-function prevNI(i){var u=document.getElementById('n_i_'+i).value;document.getElementById('n_ib_'+i).innerHTML=u?'<img src="'+u+'">':'<span style="color:var(--txt3);font-size:12px;">이미지 미리보기</span>';}
-function saveNotice(i){DB.notices[i]={type:document.getElementById('n_tp_'+i).value,title:document.getElementById('n_tt_'+i).value,text:document.getElementById('n_tx_'+i).value,date:document.getElementById('n_dt_'+i).value,imgUrl:document.getElementById('n_i_'+i).value};saveDB();renderNotices();renderStats();toast('✅ 공지 저장!');}
+function saveNotice(i){
+  var pfx='ni'+i;
+  DB.notices[i]={type:document.getElementById('n_tp_'+i).value,title:document.getElementById('n_tt_'+i).value,text:document.getElementById('n_tx_'+i).value,date:document.getElementById('n_dt_'+i).value,imgUrl:getImgVal(pfx)};
+  saveDB();renderNotices();renderStats();toast('✅ 공지 저장!');
+}
 function delNotice(i){if(!confirm('"'+DB.notices[i].title+'" 삭제할까요?'))return;DB.notices.splice(i,1);saveDB();renderNotices();renderStats();toast('🗑 삭제됐습니다.');}
 function addNotice(){var td=new Date().toISOString().slice(0,10);DB.notices.unshift({type:'notice',title:'새 공지',text:'내용을 입력하세요.',imgUrl:'',date:td});saveDB();renderNotices();renderStats();setTimeout(function(){togIC('n',0);},80);toast('➕ 공지 추가!');}
 
 /* ══ 유틸 ══ */
 function togIC(t,i){var el=document.getElementById(t+'_bd_'+i);if(el)el.classList.toggle('open');}
+function getImgVal(prefix){var el=document.getElementById(prefix+'_img_val');return el?el.value:'';}
 function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):'';}
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 </script>

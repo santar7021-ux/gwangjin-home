@@ -311,6 +311,30 @@ label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bott
 .stat-value{font-size:22px;font-weight:800;color:var(--br);font-family:'Noto Serif KR',serif;}
 .stat-sub{font-size:11px;color:var(--txt3);margin-top:2px;}
 
+/* ══ 이미지 사이즈 가이드 ══ */
+.size-guide{
+  margin-top:10px;padding:12px 14px;
+  background:linear-gradient(135deg,#F0F5EA,#EAF2FF);
+  border:1.5px solid #C8DFC0;border-radius:10px;
+  display:flex;flex-direction:column;gap:6px;
+}
+.size-guide-title{
+  font-size:11px;font-weight:800;color:var(--gr);
+  letter-spacing:.3px;margin-bottom:2px;
+}
+.size-guide-row{
+  display:flex;align-items:center;gap:8px;
+  font-size:12px;color:var(--txt2);line-height:1.4;
+}
+.size-guide-row strong{color:var(--br);font-weight:700;}
+.size-tag{
+  flex-shrink:0;padding:2px 7px;border-radius:6px;
+  font-size:10px;font-weight:800;letter-spacing:.2px;
+}
+.size-tag.best{background:#3B5A28;color:#fff;}
+.size-tag.ok{background:#E8C870;color:#4A3020;}
+.size-tag.tip{background:#DBEAFE;color:#1D4ED8;}
+
 /* 반응형 */
 @media(max-width:900px){
   :root{--sidebar:200px;}
@@ -422,6 +446,12 @@ label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bott
               <label>이미지 URL <span style="font-weight:400;color:var(--txt3)">(구글 드라이브 또는 외부 링크)</span></label>
               <input class="form-input img-input-wrap" id="pp_img" placeholder="https://drive.google.com/uc?export=view&id=..." oninput="previewPopup()">
               <div class="form-hint">구글 드라이브: 공유링크의 파일ID를 위 형식으로 변환하세요.</div>
+              <div class="size-guide">
+                <div class="size-guide-title">📐 권장 이미지 사이즈</div>
+                <div class="size-guide-row"><span class="size-tag best">최적</span><strong>750 × 560px</strong> — 선명하게 표시됨 (4:3 비율)</div>
+                <div class="size-guide-row"><span class="size-tag ok">가능</span><strong>600 × 450px</strong> 이상 · 4:3 비율 유지 권장</div>
+                <div class="size-guide-row"><span class="size-tag tip">형식</span>JPG / PNG · 1MB 이하 권장</div>
+              </div>
               <div class="img-preview-box" id="pp_img_preview">
                 <div class="img-preview-placeholder"><div class="ico">🖼️</div><p>이미지 URL 입력 시 미리보기</p></div>
               </div>
@@ -678,7 +708,7 @@ function bannerForm(b, i) {
     +'<input class="form-input" id="b_sub_'+i+'" value="'+escHtml(b.sub)+'"></div>'
     +'<div class="form-row"><label>이미지 URL</label>'
     +'<input class="form-input" id="b_img_'+i+'" value="'+escHtml(b.imgUrl||'')+'" placeholder="https://drive.google.com/uc?export=view&id=..." oninput="previewBannerImg('+i+')">'
-    +'<div class="form-hint">비워두면 색상 배경으로 표시됩니다.</div>'
+    +'<div class="form-hint">비워두면 색상 배경으로 표시됩니다.</div>''<div class="size-guide"><div class="size-guide-title">📐 권장 이미지 사이즈</div><div class="size-guide-row"><span class="size-tag best">최적</span><strong>1200 × 525px</strong> — 가로 꽉 채움 (16:7 비율)</div><div class="size-guide-row"><span class="size-tag ok">가능</span><strong>900 × 395px</strong> 이상 · 가로가 긴 와이드 이미지</div><div class="size-guide-row"><span class="size-tag tip">형식</span>JPG / PNG · 2MB 이하 · 텍스트 하단 여백 확보</div></div>'
     +'<div class="img-preview-box" id="b_imgbox_'+i+'">'+(b.imgUrl?'<img src="'+escHtml(b.imgUrl)+'" style="width:100%;height:100%;object-fit:cover;">':'<div class="img-preview-placeholder"><div class="ico">🖼️</div><p>이미지 URL 입력 시 미리보기</p></div>')+'</div>'
     +'</div>'
     +'<div class="btn-row">'
@@ -751,7 +781,7 @@ function productForm(p, i) {
     +'<div class="form-row"><label>뱃지</label><div class="badge-options" id="p_badge_wrap_'+i+'">'+badgeOpts+'</div><input type="hidden" id="p_badge_'+i+'" value="'+escHtml(p.badge)+'"></div>'
     +'<div class="form-row"><label>상품 이미지 URL</label>'
     +'<input class="form-input" id="p_img_'+i+'" value="'+escHtml(p.imgUrl||'')+'" placeholder="https://drive.google.com/uc?export=view&id=..." oninput="previewProductImg('+i+')">'
-    +'<div class="form-hint">구글 드라이브 이미지 링크를 붙여넣으세요.</div>'
+    +'<div class="form-hint">구글 드라이브 이미지 링크를 붙여넣으세요.</div>''<div class="size-guide"><div class="size-guide-title">📐 권장 이미지 사이즈</div><div class="size-guide-row"><span class="size-tag best">최적</span><strong>600 × 600px</strong> — 정사각형, 선명하게 표시됨</div><div class="size-guide-row"><span class="size-tag ok">가능</span><strong>400 × 400px</strong> 이상 · 반드시 1:1 정사각형</div><div class="size-guide-row"><span class="size-tag tip">형식</span>JPG / PNG · 1MB 이하 · 배경 흰색 권장</div></div>'
     +'<div class="img-preview-box img-preview-box-sq" id="p_imgbox_'+i+'">'+(p.imgUrl?'<img src="'+escHtml(p.imgUrl)+'" style="width:100%;height:100%;object-fit:cover;">':'<div class="img-preview-placeholder"><div class="ico">📷</div><p>상품 이미지 미리보기</p></div>')+'</div>'
     +'</div>'
     +'<div class="btn-row">'
@@ -835,6 +865,7 @@ function noticeForm(n, i) {
     +'<div class="form-row"><label>내용</label><textarea class="form-textarea" id="n_text_'+i+'" style="min-height:100px;">'+escHtml(n.text)+'</textarea></div>'
     +'<div class="form-row"><label>이미지 URL <span style="font-weight:400;color:var(--txt3)">(선택)</span></label>'
     +'<input class="form-input" id="n_img_'+i+'" value="'+escHtml(n.imgUrl||'')+'" placeholder="https://..." oninput="previewNoticeImg('+i+')">'
+    +'<div class="size-guide"><div class="size-guide-title">📐 권장 이미지 사이즈</div><div class="size-guide-row"><span class="size-tag best">최적</span><strong>750 × 420px</strong> — 공지 본문 너비 꽉 채움</div><div class="size-guide-row"><span class="size-tag ok">가능</span><strong>600px</strong> 이상 · 가로 세로 비율 자유</div><div class="size-guide-row"><span class="size-tag tip">형식</span>JPG / PNG · 1MB 이하</div></div>'
     +'<div class="img-preview-box" id="n_imgbox_'+i+'" style="display:'+(n.imgUrl?'block':'flex')+';">'+(n.imgUrl?'<img src="'+escHtml(n.imgUrl)+'" style="width:100%;height:100%;object-fit:cover;">':'<div class="img-preview-placeholder"><div class="ico">🖼️</div><p>이미지 URL 입력 시 미리보기</p></div>')+'</div>'
     +'</div>'
     +'<div class="btn-row">'

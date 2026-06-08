@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>광진농원 관리자</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D1F0E,#4A3020,#3B5A28);min-height:100vh;display:flex;align-items:center;justify-content:center;}
+
+/* 로그인 */
+#wrap-login{width:100%;max-width:380px;padding:20px;}
+.card{background:#fff;border-radius:20px;padding:36px 28px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.logo{text-align:center;margin-bottom:24px;}
+.logo-ico{font-size:44px;}
+.logo-title{font-size:20px;font-weight:700;color:#2D1F0E;margin-top:8px;}
+.logo-sub{font-size:12px;color:#9A8070;margin-top:3px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;font-weight:700;color:#5A4030;margin-bottom:6px;}
+.field input{width:100%;border:1.5px solid #D8C8B0;border-radius:10px;padding:12px 14px;font-size:14px;font-family:inherit;background:#F5EFE5;outline:none;}
+.field input:focus{border-color:#3B5A28;background:#fff;}
+.err{color:#E05040;font-size:12px;text-align:center;padding:6px;display:none;margin-bottom:8px;}
+.btn-login{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#3B5A28,#5A8040);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-login:active{opacity:.85;}
+
+/* 관리자 앱 */
+#wrap-admin{display:none;width:100%;min-height:100vh;background:#F4F1EC;}
+#wrap-admin.show{display:flex;}
+.sidebar{width:220px;min-height:100vh;background:linear-gradient(180deg,#2D1F0E,#4A3020);position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:100;}
+.sb-logo{padding:22px 18px;border-bottom:1px solid rgba(255,255,255,.1);}
+.sb-logo-ico{font-size:26px;}
+.sb-logo-title{font-size:13px;font-weight:700;color:#fff;margin-top:6px;line-height:1.4;}
+.sb-logo-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;}
+.sb-nav{flex:1;padding:14px 10px;}
+.sb-nav-title{font-size:10px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:1px;padding:0 8px;margin-bottom:6px;}
+.nav-btn{display:flex;align-items:center;gap:9px;width:100%;padding:10px 12px;border:none;background:none;color:rgba(255,255,255,.7);font-size:13px;font-weight:500;border-radius:9px;cursor:pointer;font-family:inherit;text-align:left;}
+.nav-btn:hover{background:rgba(255,255,255,.1);color:#fff;}
+.nav-btn.on{background:rgba(255,255,255,.18);color:#fff;font-weight:700;}
+.sb-foot{padding:14px;border-top:1px solid rgba(255,255,255,.1);}
+.btn-site{width:100%;padding:9px;background:#C8A050;border:none;border-radius:9px;color:#2D1F0E;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:7px;}
+.btn-out{width:100%;padding:9px;background:none;border:1px solid rgba(255,255,255,.2);border-radius:9px;color:rgba(255,255,255,.6);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+.main{margin-left:220px;flex:1;padding:26px;}
+.ph{margin-bottom:20px;}
+.ph-title{font-size:20px;font-weight:700;color:#2D1F0E;}
+.ph-sub{font-size:12px;color:#9A8070;margin-top:3px;}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
+.stat{background:#fff;border-radius:12px;padding:14px 16px;border:1px solid #EAD8C0;}
+.stat-lbl{font-size:11px;color:#9A8070;font-weight:600;margin-bottom:4px;}
+.stat-val{font-size:20px;font-weight:800;color:#2D1F0E;}
+
+.panel{display:none;}
+.panel.on{display:block;}
+.box{background:#fff;border-radius:12px;border:1px solid #EAD8C0;overflow:hidden;margin-bottom:18px;}
+.box-hd{padding:14px 18px;background:#FAF7F2;border-bottom:1px solid #EAD8C0;display:flex;align-items:center;justify-content:space-between;}
+.box-hd-title{font-size:14px;font-weight:700;color:#2D1F0E;}
+.box-bd{padding:18px;}
+
+label.lbl{display:block;font-size:12px;font-weight:700;color:#5A4030;margin-bottom:5px;}
+.inp{width:100%;border:1.5px solid #D8C8B0;border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;background:#F5EFE5;outline:none;margin-bottom:14px;}
+.inp:focus{border-color:#3B5A28;background:#fff;}
+.ta{width:100%;border:1.5px solid #D8C8B0;border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;background:#F5EFE5;outline:none;resize:vertical;min-height:75px;margin-bottom:14px;}
+.ta:focus{border-color:#3B5A28;background:#fff;}
+.sel{width:100%;border:1.5px solid #D8C8B0;border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;background:#F5EFE5;outline:none;margin-bottom:14px;}
+.hint{font-size:11px;color:#9A8070;margin-top:-10px;margin-bottom:12px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.imgbox{width:100%;aspect-ratio:16/7;border:1.5px dashed #D8C8B0;border-radius:8px;background:#F5EFE5;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:14px;}
+.imgbox img{width:100%;height:100%;object-fit:cover;}
+.imgbox-sq{aspect-ratio:1;}
+.size-tip{background:#F0F5EA;border:1px solid #C8DFC0;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11px;color:#3B5A28;line-height:1.7;}
+.size-tip strong{font-weight:700;}
+
+.toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.tog{position:relative;width:44px;height:24px;}
+.tog input{opacity:0;width:0;height:0;}
+.tog-sl{position:absolute;inset:0;border-radius:12px;background:#D1C4B0;cursor:pointer;transition:.2s;}
+.tog-sl:before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;bottom:3px;left:3px;transition:.2s;}
+.tog input:checked+.tog-sl{background:#3B5A28;}
+.tog input:checked+.tog-sl:before{transform:translateX(20px);}
+
+.btn-row{display:flex;gap:8px;margin-top:4px;}
+.btn-save{padding:10px 20px;border:none;border-radius:9px;background:linear-gradient(135deg,#3B5A28,#5A8040);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-del{padding:10px 14px;border:1.5px solid #FCA5A5;border-radius:9px;background:#FFF5F5;color:#E05040;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-add{width:100%;padding:11px;border:2px dashed #D8C8B0;border-radius:9px;background:none;color:#9A8070;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-add:hover{border-color:#3B5A28;color:#3B5A28;background:#F0F5EA;}
+.badge-opts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.badge-opt{padding:3px 11px;border-radius:20px;border:1.5px solid #D8C8B0;font-size:11px;font-weight:700;cursor:pointer;background:#fff;}
+.badge-opt.on{border-color:#3B5A28;background:#F0F5EA;color:#3B5A28;}
+
+.icard{border:1.5px solid #EAD8C0;border-radius:10px;overflow:hidden;margin-bottom:10px;}
+.icard-hd{padding:11px 14px;background:#FAF7F2;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.icard-hd-l{display:flex;align-items:center;gap:9px;}
+.icard-thumb{width:52px;height:52px;border-radius:7px;object-fit:cover;border:1px solid #EAD8C0;background:#F5EFE5;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.icard-thumb img{width:100%;height:100%;object-fit:cover;border-radius:7px;}
+.icard-name{font-size:13px;font-weight:700;color:#2D1F0E;}
+.icard-sub{font-size:11px;color:#9A8070;margin-top:2px;}
+.icard-bd{padding:14px;border-top:1px solid #EAD8C0;display:none;}
+.icard-bd.open{display:block;}
+
+.popup-prev{max-width:260px;margin:0 auto 16px;border:2px solid #EAD8C0;border-radius:16px;overflow:hidden;}
+.pp-img{width:100%;aspect-ratio:4/3;background:#2D1F0E;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.pp-img img{width:100%;height:100%;object-fit:cover;}
+.pp-body{padding:11px;}
+.pp-title{font-size:13px;font-weight:800;color:#2D1F0E;}
+.pp-desc{font-size:11px;color:#5A4030;margin-top:3px;line-height:1.5;}
+.pp-foot{display:flex;border-top:1px solid #EAD8C0;}
+.pp-btn{flex:1;padding:9px;border:none;background:none;font-size:10px;color:#9A8070;cursor:default;}
+.pp-btn.main{font-weight:700;color:#3B5A28;border-left:1px solid #EAD8C0;}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#2D1F0E;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;z-index:9999;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- 로그인 -->
+<div id="wrap-login">
+  <div class="card">
+    <div class="logo">
+      <div class="logo-ico">🍐</div>
+      <div class="logo-title">광진농원 관리자</div>
+      <div class="logo-sub">Admin Dashboard</div>
+    </div>
+    <div class="field">
+      <label>아이디</label>
+      <input type="text" id="lgId" placeholder="아이디 입력" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>비밀번호</label>
+      <input type="password" id="lgPw" placeholder="비밀번호 입력">
+    </div>
+    <div class="err" id="lgErr">❌ 아이디 또는 비밀번호가 틀렸습니다.</div>
+    <button class="btn-login" id="loginBtn">🔑 로그인</button>
+  </div>
+</div>
+
+<!-- 관리자 앱 -->
+<div id="wrap-admin">
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-ico">🍐</div>
+      <div class="sb-logo-title">남양주 먹골배<br>광진농원</div>
+      <div class="sb-logo-sub">Admin Dashboard</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-nav-title">콘텐츠 관리</div>
+      <button class="nav-btn on" id="nb-popup" onclick="goTab('popup')">🪟 팝업 배너</button>
+      <button class="nav-btn" id="nb-banner" onclick="goTab('banner')">🖼️ 메인 배너</button>
+      <button class="nav-btn" id="nb-product" onclick="goTab('product')">📦 상품 관리</button>
+      <button class="nav-btn" id="nb-notice" onclick="goTab('notice')">📋 공지사항</button>
+    </nav>
+    <div class="sb-foot">
+      <button class="btn-site" onclick="window.open('index.html','_blank')">🌐 홈페이지 보기</button>
+      <button class="btn-out" onclick="doLogout()">← 로그아웃</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="stat-row" id="statRow"></div>
+
+    <!-- 팝업 -->
+    <div class="panel on" id="panel-popup">
+      <div class="ph"><div class="ph-title">🪟 팝업 배너</div><div class="ph-sub">접속 시 표시되는 팝업을 설정합니다.</div></div>
+      <div style="display:grid;grid-template-columns:1fr 280px;gap:18px;align-items:start;">
+        <div class="box">
+          <div class="box-hd"><div class="box-hd-title">팝업 편집</div></div>
+          <div class="box-bd">
+            <div class="toggle-row">
+              <label class="tog"><input type="checkbox" id="pp_show" onchange="prevPopup()"><span class="tog-sl"></span></label>
+              <span id="pp_show_lbl" style="font-size:13px;font-weight:600;">팝업 표시 중</span>
+            </div>
+            <label class="lbl">팝업 제목</label>
+            <input class="inp" id="pp_title" placeholder="예: 남양주 먹골배 입고!" oninput="prevPopup()">
+            <label class="lbl">팝업 내용</label>
+            <textarea class="ta" id="pp_desc" placeholder="팝업 내용을 입력하세요." oninput="prevPopup()"></textarea>
+            <label class="lbl">이미지 URL</label>
+            <input class="inp" id="pp_img" placeholder="https://drive.google.com/uc?export=view&id=..." oninput="prevPopup()">
+            <div class="size-tip">📐 <strong>권장 사이즈: 750 × 560px</strong> (4:3 비율) · JPG/PNG · 1MB 이하</div>
+            <div class="imgbox" id="pp_imgbox"><span style="color:#9A8070;font-size:12px;">이미지 미리보기</span></div>
+            <div class="btn-row">
+              <button class="btn-save" onclick="savePopup()">💾 저장</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#5A4030;margin-bottom:8px;">미리보기</div>
+          <div class="popup-prev">
+            <div class="pp-img" id="pp_prev_img"><span style="font-size:32px;">🍐</span></div>
+            <div class="pp-body">
+              <div class="pp-title" id="pp_prev_title">팝업 제목</div>
+              <div class="pp-desc" id="pp_prev_desc">팝업 내용</div>
+            </div>
+            <div class="pp-foot">
+              <div class="pp-btn">오늘 하루 보지 않기</div>
+              <div class="pp-btn main">닫기</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 배너 -->
+    <div class="panel" id="panel-banner">
+      <div class="ph"><div class="ph-title">🖼️ 메인 배너</div><div class="ph-sub">홈페이지 상단 롤링 배너를 관리합니다.</div></div>
+      <div class="box">
+        <div class="box-hd"><div class="box-hd-title">배너 목록</div><span id="banner_cnt" style="font-size:11px;background:#F0F5EA;color:#3B5A28;padding:2px 8px;border-radius:10px;font-weight:700;"></span></div>
+        <div class="box-bd"><div id="bannerList"></div><button class="btn-add" onclick="addBanner()">＋ 배너 추가</button></div>
+      </div>
+    </div>
+
+    <!-- 상품 -->
+    <div class="panel" id="panel-product">
+      <div class="ph"><div class="ph-title">📦 상품 관리</div><div class="ph-sub">판매 상품을 관리합니다.</div></div>
+      <div class="box">
+        <div class="box-hd"><div class="box-hd-title">상품 목록</div><span id="product_cnt" style="font-size:11px;background:#F0F5EA;color:#3B5A28;padding:2px 8px;border-radius:10px;font-weight:700;"></span></div>
+        <div class="box-bd"><div id="productList"></div><button class="btn-add" onclick="addProduct()">＋ 상품 추가</button></div>
+      </div>
+    </div>
+
+    <!-- 공지 -->
+    <div class="panel" id="panel-notice">
+      <div class="ph"><div class="ph-title">📋 공지사항</div><div class="ph-sub">공지·이벤트·안내를 관리합니다.</div></div>
+      <div class="box">
+        <div class="box-hd"><div class="box-hd-title">공지 목록</div><span id="notice_cnt" style="font-size:11px;background:#F0F5EA;color:#3B5A28;padding:2px 8px;border-radius:10px;font-weight:700;"></span></div>
+        <div class="box-bd"><div id="noticeList"></div><button class="btn-add" onclick="addNotice()">＋ 공지 추가</button></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var STORE_KEY = 'gwangjin_home_v1';
+var DB = null;
+
+/* ── DB ── */
+function loadDB() {
+  try { var r = localStorage.getItem(STORE_KEY); if(r) return JSON.parse(r); } catch(e){}
+  return defaultDB();
+}
+function saveDB() { try { localStorage.setItem(STORE_KEY, JSON.stringify(DB)); } catch(e){} }
+function defaultDB() {
+  return {
+    banners:[
+      {title:'남양주 먹골배\n광진농원',sub:'산지 직배송으로 만나는 신선한 먹골배',imgUrl:'https://drive.google.com/uc?export=view&id=1GlvS__fNWBPQaLOCr3wPmL5NVwAZAolM',bg:'#2D1F0E'},
+      {title:'올해 햇배 입고!',sub:'신선한 신고배 · 황금배 지금 주문하세요',imgUrl:'https://drive.google.com/uc?export=view&id=1saLBL0NLE9nPlM6SZXvwCWAR7-hKYDpC',bg:'#3B2A1A'},
+      {title:'택배 주문 안내',sub:'전국 택배 배송 · 1박스 4,000원',imgUrl:'',bg:'#4A3828'}
+    ],
+    products:[
+      {name:'신고 10과 (3.5kg)',desc:'달콤하고 과즙이 풍부한 프리미엄 신고배입니다.',price:'45,000원',badge:'BEST',imgUrl:'https://drive.google.com/uc?export=view&id=1miwoeGXSaBahsxTEu-yIrZoQG0tZu8Nd'},
+      {name:'신고 13과 (3.5kg)',desc:'알이 굵고 단단한 신고배 13과입니다.',price:'34,000원',badge:'',imgUrl:''},
+      {name:'신고 15과 (3.5kg)',desc:'실속형 소과 신고배입니다.',price:'30,000원',badge:'실속',imgUrl:''}
+    ],
+    notices:[
+      {type:'notice',title:'2024년 햇배 입고 안내',text:'안녕하세요, 광진농원입니다.\n올해 신선한 햇배가 입고되었습니다.',imgUrl:'',date:'2024-09-01'},
+      {type:'event',title:'추석 선물세트 특별 할인',text:'추석을 맞아 선물세트를 특별 할인 판매합니다.',imgUrl:'',date:'2024-08-20'}
+    ],
+    popup:{show:true,title:'남양주 먹골배 입고!',desc:'신선한 먹골배가 입고됐습니다. 지금 바로 주문해 보세요!',imgUrl:''}
+  };
+}
+
+/* ── 로그인 ── */
+document.getElementById('loginBtn').onclick = function() {
+  var id = document.getElementById('lgId').value.trim();
+  var pw = document.getElementById('lgPw').value.trim();
+  if (id === 'gwangjin' && pw === '105709') {
+    DB = loadDB();
+    document.getElementById('wrap-login').style.display = 'none';
+    document.getElementById('wrap-admin').classList.add('show');
+    document.body.style.background = '#F4F1EC';
+    initAll();
+  } else {
+    document.getElementById('lgErr').style.display = 'block';
+  }
+};
+document.getElementById('lgPw').onkeydown = function(e){ if(e.key==='Enter') document.getElementById('loginBtn').click(); };
+document.getElementById('lgId').onkeydown = function(e){ if(e.key==='Enter') document.getElementById('loginBtn').click(); };
+
+function doLogout() {
+  document.getElementById('wrap-admin').classList.remove('show');
+  document.getElementById('wrap-login').style.display = 'flex';
+  document.body.style.background = 'linear-gradient(135deg,#2D1F0E,#4A3020,#3B5A28)';
+  document.getElementById('lgId').value=''; document.getElementById('lgPw').value='';
+  document.getElementById('lgErr').style.display='none';
+}
+
+/* ── 탭 ── */
+function goTab(t) {
+  ['popup','banner','product','notice'].forEach(function(x){
+    document.getElementById('panel-'+x).classList.toggle('on', x===t);
+    document.getElementById('nb-'+x).classList.toggle('on', x===t);
+  });
+}
+
+/* ── 초기화 ── */
+function initAll() { renderStats(); loadPopupForm(); renderBanners(); renderProducts(); renderNotices(); }
+function renderStats() {
+  document.getElementById('statRow').innerHTML =
+    '<div class="stat"><div class="stat-lbl">🖼️ 메인배너</div><div class="stat-val">'+DB.banners.length+'개</div></div>'+
+    '<div class="stat"><div class="stat-lbl">📦 상품</div><div class="stat-val">'+DB.products.length+'개</div></div>'+
+    '<div class="stat"><div class="stat-lbl">📋 공지</div><div class="stat-val">'+DB.notices.length+'개</div></div>'+
+    '<div class="stat"><div class="stat-lbl">🪟 팝업</div><div class="stat-val">'+(DB.popup.show?'ON':'OFF')+'</div></div>';
+}
+
+/* ── 팝업 ── */
+function loadPopupForm() {
+  var p=DB.popup;
+  document.getElementById('pp_show').checked=p.show;
+  document.getElementById('pp_show_lbl').textContent=p.show?'팝업 표시 중':'팝업 숨김';
+  document.getElementById('pp_title').value=p.title||'';
+  document.getElementById('pp_desc').value=p.desc||'';
+  document.getElementById('pp_img').value=p.imgUrl||'';
+  prevPopup();
+}
+function prevPopup() {
+  var t=document.getElementById('pp_title').value||'팝업 제목';
+  var d=document.getElementById('pp_desc').value||'팝업 내용';
+  var img=document.getElementById('pp_img').value;
+  var show=document.getElementById('pp_show').checked;
+  document.getElementById('pp_prev_title').textContent=t;
+  document.getElementById('pp_prev_desc').textContent=d;
+  document.getElementById('pp_show_lbl').textContent=show?'팝업 표시 중':'팝업 숨김';
+  var b=document.getElementById('pp_prev_img');
+  b.innerHTML=img?'<img src="'+img+'" style="width:100%;height:100%;object-fit:cover;">':'<span style="font-size:32px;">🍐</span>';
+  var ib=document.getElementById('pp_imgbox');
+  ib.innerHTML=img?'<img src="'+img+'" style="width:100%;height:100%;object-fit:cover;">':'<span style="color:#9A8070;font-size:12px;">이미지 미리보기</span>';
+}
+function savePopup() {
+  DB.popup={show:document.getElementById('pp_show').checked,title:document.getElementById('pp_title').value,desc:document.getElementById('pp_desc').value,imgUrl:document.getElementById('pp_img').value};
+  saveDB(); renderStats(); toast('✅ 팝업 저장됐습니다!');
+}
+
+/* ── 배너 ── */
+function renderBanners() {
+  document.getElementById('banner_cnt').textContent=DB.banners.length+'개';
+  var h='';
+  DB.banners.forEach(function(b,i){
+    var th=b.imgUrl?'<img src="'+b.imgUrl+'">':(b.title.charAt(0)||'🍐');
+    h+='<div class="icard"><div class="icard-hd" onclick="togCard(\'b\','+i+')">'
+      +'<div class="icard-hd-l"><div class="icard-thumb">'+th+'</div>'
+      +'<div><div class="icard-name">'+esc(b.title.replace(/\n/g,' '))+'</div><div class="icard-sub">'+esc(b.sub)+'</div></div></div>'
+      +'<span style="color:#9A8070;">▾</span></div>'
+      +'<div class="icard-bd" id="b_bd_'+i+'">'+bForm(b,i)+'</div></div>';
+  });
+  document.getElementById('bannerList').innerHTML=h;
+}
+function bForm(b,i){
+  return '<label class="lbl">배너 제목</label><textarea class="ta" id="b_t_'+i+'" style="min-height:55px;">'+esc(b.title)+'</textarea>'
+    +'<label class="lbl">부제목</label><input class="inp" id="b_s_'+i+'" value="'+esc(b.sub)+'">'
+    +'<label class="lbl">이미지 URL</label><input class="inp" id="b_i_'+i+'" value="'+esc(b.imgUrl||'')+'" placeholder="https://drive.google.com/uc?export=view&id=..." oninput="prevBannerImg('+i+')">'
+    +'<div class="size-tip">📐 <strong>권장: 1200 × 525px</strong> (16:7 비율) · JPG/PNG · 2MB 이하</div>'
+    +'<div class="imgbox" id="b_ib_'+i+'">'+(b.imgUrl?'<img src="'+esc(b.imgUrl)+'">':'<span style="color:#9A8070;font-size:12px;">이미지 미리보기</span>')+'</div>'
+    +'<div class="btn-row"><button class="btn-save" onclick="saveBanner('+i+')">💾 저장</button><button class="btn-del" onclick="delBanner('+i+')">🗑 삭제</button></div>';
+}
+function prevBannerImg(i){var u=document.getElementById('b_i_'+i).value;document.getElementById('b_ib_'+i).innerHTML=u?'<img src="'+u+'">':'<span style="color:#9A8070;font-size:12px;">이미지 미리보기</span>';}
+function saveBanner(i){DB.banners[i]={title:document.getElementById('b_t_'+i).value,sub:document.getElementById('b_s_'+i).value,imgUrl:document.getElementById('b_i_'+i).value,bg:DB.banners[i].bg||'#2D1F0E'};saveDB();renderBanners();renderStats();toast('✅ 배너 저장!');}
+function delBanner(i){if(!confirm('배너를 삭제할까요?'))return;DB.banners.splice(i,1);saveDB();renderBanners();renderStats();toast('🗑 삭제됐습니다.');}
+function addBanner(){DB.banners.push({title:'새 배너',sub:'부제목',imgUrl:'',bg:'#2D1F0E'});saveDB();renderBanners();renderStats();setTimeout(function(){togCard('b',DB.banners.length-1);},100);toast('➕ 배너 추가!');}
+
+/* ── 상품 ── */
+function renderProducts() {
+  document.getElementById('product_cnt').textContent=DB.products.length+'개';
+  var h='';
+  DB.products.forEach(function(p,i){
+    var th=p.imgUrl?'<img src="'+p.imgUrl+'">':(p.name.charAt(0)||'🍐');
+    var bj=p.badge?'<span style="margin-left:5px;background:#F0F5EA;color:#3B5A28;padding:1px 6px;border-radius:6px;font-size:10px;font-weight:700;">'+esc(p.badge)+'</span>':'';
+    h+='<div class="icard"><div class="icard-hd" onclick="togCard(\'p\','+i+')">'
+      +'<div class="icard-hd-l"><div class="icard-thumb">'+th+'</div>'
+      +'<div><div class="icard-name">'+esc(p.name)+bj+'</div><div class="icard-sub">'+esc(p.price)+'</div></div></div>'
+      +'<span style="color:#9A8070;">▾</span></div>'
+      +'<div class="icard-bd" id="p_bd_'+i+'">'+pForm(p,i)+'</div></div>';
+  });
+  document.getElementById('productList').innerHTML=h;
+}
+function pForm(p,i){
+  var bgs=['','BEST','신상','실속','한정','품절'];
+  var bo=bgs.map(function(b){return '<div class="badge-opt'+(p.badge===b?' on':'')+'" onclick="selBadge('+i+',\''+b+'\')">'+( b||'없음')+'</div>';}).join('');
+  return '<div class="grid2"><div><label class="lbl">상품명</label><input class="inp" id="p_n_'+i+'" value="'+esc(p.name)+'"></div>'
+    +'<div><label class="lbl">가격</label><input class="inp" id="p_pr_'+i+'" value="'+esc(p.price)+'" placeholder="45,000원"></div></div>'
+    +'<label class="lbl">설명</label><textarea class="ta" id="p_d_'+i+'">'+esc(p.desc)+'</textarea>'
+    +'<label class="lbl">뱃지</label><div class="badge-opts" id="p_bw_'+i+'">'+bo+'</div><input type="hidden" id="p_b_'+i+'" value="'+esc(p.badge)+'">'
+    +'<label class="lbl">상품 이미지 URL</label><input class="inp" id="p_i_'+i+'" value="'+esc(p.imgUrl||'')+'" placeholder="https://drive.google.com/uc?export=view&id=..." oninput="prevProdImg('+i+')">'
+    +'<div class="size-tip">📐 <strong>권장: 600 × 600px</strong> (1:1 정사각형) · JPG/PNG · 1MB 이하 · 흰 배경 권장</div>'
+    +'<div class="imgbox imgbox-sq" id="p_ib_'+i+'">'+(p.imgUrl?'<img src="'+esc(p.imgUrl)+'">':'<span style="color:#9A8070;font-size:12px;">이미지 미리보기</span>')+'</div>'
+    +'<div class="btn-row"><button class="btn-save" onclick="saveProduct('+i+')">💾 저장</button><button class="btn-del" onclick="delProduct('+i+')">🗑 삭제</button></div>';
+}
+function selBadge(i,v){document.getElementById('p_b_'+i).value=v;document.querySelectorAll('#p_bw_'+i+' .badge-opt').forEach(function(e){e.classList.toggle('on',e.textContent===(v||'없음'));});}
+function prevProdImg(i){var u=document.getElementById('p_i_'+i).value;document.getElementById('p_ib_'+i).innerHTML=u?'<img src="'+u+'">':'<span style="color:#9A8070;font-size:12px;">이미지 미리보기</span>';}
+function saveProduct(i){DB.products[i]={name:document.getElementById('p_n_'+i).value,price:document.getElementById('p_pr_'+i).value,desc:document.getElementById('p_d_'+i).value,badge:document.getElementById('p_b_'+i).value,imgUrl:document.getElementById('p_i_'+i).value};saveDB();renderProducts();renderStats();toast('✅ 상품 저장!');}
+function delProduct(i){if(!confirm('"'+DB.products[i].name+'" 삭제할까요?'))return;DB.products.splice(i,1);saveDB();renderProducts();renderStats();toast('🗑 삭제됐습니다.');}
+function addProduct(){DB.products.push({name:'새 상품',desc:'설명을 입력하세요.',price:'',badge:'',imgUrl:''});saveDB();renderProducts();renderStats();setTimeout(function(){togCard('p',DB.products.length-1);},100);toast('➕ 상품 추가!');}
+
+/* ── 공지 ── */
+function renderNotices() {
+  document.getElementById('notice_cnt').textContent=DB.notices.length+'개';
+  var tm={notice:'📢 공지',event:'🎉 이벤트',info:'ℹ️ 안내'};
+  var h='';
+  DB.notices.forEach(function(n,i){
+    h+='<div class="icard"><div class="icard-hd" onclick="togCard(\'n\','+i+')">'
+      +'<div class="icard-hd-l"><div><div class="icard-name">'+esc(n.title)+'</div>'
+      +'<div class="icard-sub">'+(tm[n.type]||'공지')+' · '+n.date+'</div></div></div>'
+      +'<span style="color:#9A8070;">▾</span></div>'
+      +'<div class="icard-bd" id="n_bd_'+i+'">'+nForm(n,i)+'</div></div>';
+  });
+  document.getElementById('noticeList').innerHTML=h;
+}
+function nForm(n,i){
+  return '<div class="grid2"><div><label class="lbl">유형</label><select class="sel" id="n_tp_'+i+'"><option value="notice"'+(n.type==='notice'?' selected':'')+'>📢 공지</option><option value="event"'+(n.type==='event'?' selected':'')+'>🎉 이벤트</option><option value="info"'+(n.type==='info'?' selected':'')+'>ℹ️ 안내</option></select></div>'
+    +'<div><label class="lbl">날짜</label><input class="inp" type="date" id="n_dt_'+i+'" value="'+n.date+'"></div></div>'
+    +'<label class="lbl">제목</label><input class="inp" id="n_tt_'+i+'" value="'+esc(n.title)+'">'
+    +'<label class="lbl">내용</label><textarea class="ta" id="n_tx_'+i+'" style="min-height:90px;">'+esc(n.text)+'</textarea>'
+    +'<label class="lbl">이미지 URL <span style="font-weight:400;color:#9A8070;">(선택)</span></label>'
+    +'<input class="inp" id="n_i_'+i+'" value="'+esc(n.imgUrl||'')+'" placeholder="https://..." oninput="prevNoticeImg('+i+')">'
+    +'<div class="size-tip">📐 <strong>권장: 750 × 420px</strong> · JPG/PNG · 1MB 이하</div>'
+    +'<div class="imgbox" id="n_ib_'+i+'">'+(n.imgUrl?'<img src="'+esc(n.imgUrl)+'">':'<span style="color:#9A8070;font-size:12px;">이미지 미리보기</span>')+'</div>'
+    +'<div class="btn-row"><button class="btn-save" onclick="saveNotice('+i+')">💾 저장</button><button class="btn-del" onclick="delNotice('+i+')">🗑 삭제</button></div>';
+}
+function prevNoticeImg(i){var u=document.getElementById('n_i_'+i).value;document.getElementById('n_ib_'+i).innerHTML=u?'<img src="'+u+'">':'<span style="color:#9A8070;font-size:12px;">이미지 미리보기</span>';}
+function saveNotice(i){DB.notices[i]={type:document.getElementById('n_tp_'+i).value,title:document.getElementById('n_tt_'+i).value,text:document.getElementById('n_tx_'+i).value,date:document.getElementById('n_dt_'+i).value,imgUrl:document.getElementById('n_i_'+i).value};saveDB();renderNotices();renderStats();toast('✅ 공지 저장!');}
+function delNotice(i){if(!confirm('"'+DB.notices[i].title+'" 삭제할까요?'))return;DB.notices.splice(i,1);saveDB();renderNotices();renderStats();toast('🗑 삭제됐습니다.');}
+function addNotice(){var td=new Date().toISOString().slice(0,10);DB.notices.unshift({type:'notice',title:'새 공지',text:'내용을 입력하세요.',imgUrl:'',date:td});saveDB();renderNotices();renderStats();setTimeout(function(){togCard('n',0);},100);toast('➕ 공지 추가!');}
+
+/* ── 유틸 ── */
+function togCard(t,i){var el=document.getElementById(t+'_bd_'+i);if(el)el.classList.toggle('open');}
+function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''; }
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
+</script>
+</body>
+</html>

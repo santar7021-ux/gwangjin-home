@@ -370,7 +370,7 @@ label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bott
       <input class="login-input" id="lgPw" type="password" placeholder="비밀번호">
     </div>
     <div class="login-err" id="lgErr">아이디 또는 비밀번호가 틀렸습니다.</div>
-    <button class="btn-login-submit" onclick="doLogin()">🔑 로그인</button>
+    <button class="btn-login-submit" type="button" id="loginBtn">🔑 로그인</button>
   </div>
 </div>
 
@@ -582,22 +582,32 @@ function getDefaultDB() {
 var DB = loadDB();
 
 // ══ 로그인 ══
-document.getElementById('lgPw').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+
 
 function doLogin() {
-  var id = document.getElementById('lgId').value.trim();
-  var pw = document.getElementById('lgPw').value.trim();
+  var id = (document.getElementById('lgId').value || '').trim();
+  var pw = (document.getElementById('lgPw').value || '').trim();
   var err = document.getElementById('lgErr');
-  err.style.display = 'none';
   if (id === 'gwangjin' && pw === '105709') {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminApp').classList.add('show');
     initAll();
   } else {
     err.style.display = 'block';
-    err.textContent = '아이디: gwangjin / 비밀번호: 105709 를 입력하세요.';
+    err.textContent = '❌ 틀렸어요! 아이디: gwangjin / 비번: 105709';
   }
 }
+
+// 로그인 이벤트 - DOMContentLoaded 이후 안전하게 바인딩
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('loginBtn').addEventListener('click', doLogin);
+  document.getElementById('lgPw').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doLogin();
+  });
+  document.getElementById('lgId').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doLogin();
+  });
+});
 function doLogout() {
   document.getElementById('adminApp').classList.remove('show');
   document.getElementById('loginScreen').style.display = 'flex';

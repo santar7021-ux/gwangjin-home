@@ -370,6 +370,34 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
 
 <div class="toast" id="toast"></div>
 
+<!-- 이미지 위젯 템플릿 -->
+<template id="tpl-imgwidget">
+  <div class="img-upload-wrap">
+    <div class="img-tabs">
+      <button class="img-tab on iw-tab-file">📁 파일 업로드</button>
+      <button class="img-tab iw-tab-url">🔗 URL 입력</button>
+    </div>
+    <div class="img-panel on iw-file-panel">
+      <div class="dropzone">
+        <input type="file" accept="image/*" class="iw-file-input">
+        <div class="dropzone-ico">📷</div>
+        <div class="dropzone-txt">클릭하거나 이미지를 끌어다 놓으세요</div>
+        <div class="dropzone-sub">JPG · PNG · WEBP</div>
+      </div>
+    </div>
+    <div class="img-panel iw-url-panel">
+      <input class="inp iw-url-inp" placeholder="https://drive.google.com/uc?export=view&id=..." style="margin-bottom:0;">
+      <div style="font-size:11px;color:var(--txt3);margin-top:4px;">구글 드라이브 링크를 붙여넣으세요.</div>
+    </div>
+    <div class="size-tip iw-size" style="margin-top:10px;"></div>
+    <div class="imgbox iw-imgbox">
+      <div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 미리보기</div></div>
+    </div>
+    <input type="hidden" class="iw-hidden">
+    <button type="button" class="img-clear iw-clear" style="display:none;">✕</button>
+  </div>
+</template>
+
 <script>
 var STORE_KEY='gwangjin_home_v1';
 var DB=null;
@@ -502,49 +530,44 @@ function clearImg(prefix){
   if(prefix==='pp') prevPopup();
 }
 
-/* 동적 이미지 위젯 HTML 생성 */
+/* 동적 이미지 위젯 HTML 생성 - 템플릿 엘리먼트 방식 */
 function imgWidget(prefix, currentVal, boxClass, sizeText){
-  var id=prefix+'_img_wrap_dyn';
-  var h='<div class="img-upload-wrap" id="'+id+'">'
-    +'<div class="img-tabs">'
-      +'<button class="img-tab on" onclick="switchTabDyn(\''+prefix+'\',\'file\')">📁 파일 업로드</button>'
-      +'<button class="img-tab" onclick="switchTabDyn(\''+prefix+'\',\'url\')">🔗 URL 입력</button>'
-    +'</div>'
-    +'<div class="img-panel on" id="'+prefix+'_panel_file_dyn">'
-      +'<div class="dropzone" id="'+prefix+'_dropzone">'
-        +'<input type="file" accept="image/*" onchange="handleFile(this,\''+prefix+'\')">'
-        +'<div class="dropzone-ico">📷</div>'
-        +'<div class="dropzone-txt">클릭하거나 이미지를 끌어다 놓으세요</div>'
-        +'<div class="dropzone-sub">JPG · PNG · WEBP</div>'
-      +'</div>'
-    +'</div>'
-    +'<div class="img-panel" id="'+prefix+'_panel_url_dyn">'
-      +'<input class="inp" id="'+prefix+'_url_inp" placeholder="https://drive.google.com/uc?export=view&id=..." oninput="handleUrl(this,\''+prefix+'\')" style="margin-bottom:0;">'
-      +'<div style="font-size:11px;color:var(--txt3);margin-top:4px;">구글 드라이브 링크를 붙여넣으세요.</div>'
-    +'</div>'
-    +'<div class="size-tip" style="margin-top:10px;">📐 '+sizeText+'</div>'
-    +'<div class="imgbox '+boxClass+'" id="'+prefix+'_imgbox">';
+  var tpl = document.getElementById('tpl-imgwidget');
+  var div = document.createElement('div');
+  div.innerHTML = tpl.innerHTML;
+  div.querySelector('.img-upload-wrap').id = prefix+'_img_wrap_dyn';
+  div.querySelector('.iw-file-panel').id = prefix+'_panel_file_dyn';
+  div.querySelector('.iw-url-panel').id = prefix+'_panel_url_dyn';
+  div.querySelector('.iw-url-inp').id = prefix+'_url_inp';
+  div.querySelector('.iw-imgbox').id = prefix+'_imgbox';
+  div.querySelector('.iw-imgbox').className = 'imgbox '+boxClass+' iw-imgbox';
+  div.querySelector('.iw-hidden').id = prefix+'_img_val';
+  div.querySelector('.iw-size').innerHTML = '📐 '+sizeText;
+  // 이벤트 바인딩
+  div.querySelector('.iw-tab-file').setAttribute('data-prefix', prefix);
+  div.querySelector('.iw-tab-url').setAttribute('data-prefix', prefix);
+  div.querySelector('.iw-file-input').setAttribute('data-prefix', prefix);
+  div.querySelector('.iw-url-inp').setAttribute('data-prefix', prefix);
+  div.querySelector('.iw-clear').setAttribute('data-prefix', prefix);
+  // 초기값 설정
   if(currentVal){
-    h+='<img src="'+currentVal+'" style="width:100%;height:100%;object-fit:cover;"><button class="img-clear" onclick="clearImg(\''+prefix+'\')">✕</button>';
-  }else{
-    h+='<div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 미리보기</div></div>';
+    div.querySelector('.iw-hidden').value = currentVal;
+    div.querySelector('.iw-url-inp').value = currentVal;
+    div.querySelector('.iw-imgbox').innerHTML = '<img src="'+currentVal+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div class=imgbox-ph><div class=imgbox-ph-ico>❌</div><div class=imgbox-ph-txt>이미지 오류</div></div>\'"><button class="img-clear" data-prefix="'+prefix+'">✕</button>';
   }
-  h+='</div>'
-    +'<input type="hidden" id="'+prefix+'_img_val" value="'+(currentVal||')+'">'
-  +'</div>';
-  return h;
+  return div.innerHTML;
 }
 
 function switchTabDyn(prefix,tab){
-  ['file','url'].forEach(function(t){
-    var el=document.getElementById(prefix+'_panel_'+t+'_dyn');
-    if(el) el.classList.toggle('on',t===tab);
-  });
+  var fp=document.getElementById(prefix+'_panel_file_dyn');
+  var up=document.getElementById(prefix+'_panel_url_dyn');
   var wrap=document.getElementById(prefix+'_img_wrap_dyn');
+  if(fp) fp.classList.toggle('on',tab==='file');
+  if(up) up.classList.toggle('on',tab==='url');
   if(wrap){
-    wrap.querySelectorAll('.img-tab').forEach(function(el,i){
-      el.classList.toggle('on',(tab==='file'&&i===0)||(tab==='url'&&i===1));
-    });
+    var tabs=wrap.querySelectorAll('.img-tab');
+    if(tabs[0]) tabs[0].classList.toggle('on',tab==='file');
+    if(tabs[1]) tabs[1].classList.toggle('on',tab==='url');
   }
 }
 
@@ -703,6 +726,40 @@ function togIC(t,i){var el=document.getElementById(t+'_bd_'+i);if(el)el.classLis
 function getImgVal(prefix){var el=document.getElementById(prefix+'_img_val');return el?el.value:'';}
 function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):'';}
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
+
+/* ══ 이벤트 위임 - 동적 생성 요소 처리 ══ */
+document.addEventListener('click', function(e){
+  var target = e.target;
+  // 파일탭
+  if(target.classList.contains('iw-tab-file')){
+    var pfx=target.getAttribute('data-prefix');
+    if(pfx) switchTabDyn(pfx,'file');
+  }
+  // URL탭
+  if(target.classList.contains('iw-tab-url')){
+    var pfx=target.getAttribute('data-prefix');
+    if(pfx) switchTabDyn(pfx,'url');
+  }
+  // 이미지 삭제
+  if(target.classList.contains('img-clear')){
+    var pfx=target.getAttribute('data-prefix');
+    if(pfx) clearImg(pfx);
+  }
+});
+document.addEventListener('change', function(e){
+  var target=e.target;
+  if(target.classList.contains('iw-file-input')){
+    var pfx=target.getAttribute('data-prefix');
+    if(pfx) handleFile(target, pfx);
+  }
+});
+document.addEventListener('input', function(e){
+  var target=e.target;
+  if(target.classList.contains('iw-url-inp')){
+    var pfx=target.getAttribute('data-prefix');
+    if(pfx) handleUrl(target, pfx);
+  }
+});
 </script>
 </body>
 </html>

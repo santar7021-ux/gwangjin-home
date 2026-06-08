@@ -586,13 +586,16 @@ document.getElementById('lgPw').addEventListener('keydown', function(e){ if(e.ke
 
 function doLogin() {
   var id = document.getElementById('lgId').value.trim();
-  var pw = document.getElementById('lgPw').value;
-  if (id === ADMIN_ID && pw === ADMIN_PW) {
+  var pw = document.getElementById('lgPw').value.trim();
+  var err = document.getElementById('lgErr');
+  err.style.display = 'none';
+  if (id === 'gwangjin' && pw === '105709') {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminApp').classList.add('show');
     initAll();
   } else {
-    document.getElementById('lgErr').style.display = 'block';
+    err.style.display = 'block';
+    err.textContent = '아이디: gwangjin / 비밀번호: 105709 를 입력하세요.';
   }
 }
 function doLogout() {

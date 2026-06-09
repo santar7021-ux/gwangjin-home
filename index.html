@@ -493,7 +493,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
     </div>
     <a class="map-img-wrap" href="https://map.naver.com/v5/search/경기%20남양주시%20별내면%20광전리%20269-2" target="_blank">
       <img class="map-img" id="mapImg"
-        src="https://drive.google.com/uc?export=view&id=1miwoeGXSaBahsxTEu-yIrZoQG0tZu8Nd"
+        src="https://drive.google.com/uc?export=view&id=1ypQACPcUALdqMM5uBCjBwSQ4Ad6wvKp1"
         alt="광진농원 사진"
         onerror="this.style.display='none';document.getElementById('mapImgPh').style.display='flex';">
       <div class="map-img-ph" id="mapImgPh">
@@ -524,7 +524,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
   <button class="btn-edit" onclick="openEditor('product')">+ 상품</button>
   <button class="btn-edit" onclick="openEditor('notice')">+ 공지</button>
   <button class="btn-edit" onclick="openEditor('popup')">팝업</button>
-  <button class="btn-edit" onclick="openEditor('location')">📍 사진</button>
   <button class="btn-edit" style="background:rgba(220,50,50,.2);" onclick="adminLogout()">로그아웃</button>
 </div>
 
@@ -605,7 +604,7 @@ function defData(){return{
     {type:'event',title:'추석 선물세트 특별 할인',text:'추석을 맞아 선물세트를 특별 할인 판매합니다.',imgUrl:'',date:'2024-08-20'}
   ],
   popup:{show:true,title:'남양주 먹골배 입고!',desc:'신선한 먹골배가 입고됐습니다. 지금 바로 주문해 보세요!',imgUrl:''},
-  locationImg:'https://drive.google.com/uc?export=view&id=1miwoeGXSaBahsxTEu-yIrZoQG0tZu8Nd'
+  locationImg:'https://drive.google.com/uc?export=view&id=1ypQACPcUALdqMM5uBCjBwSQ4Ad6wvKp1'
 };}
 
 var DB=loadData();
@@ -899,18 +898,12 @@ function convertVideoUrl(url){
 function switchMType(t){var iw=document.getElementById('ef_image_wrap'),vw=document.getElementById('ef_video_wrap'),ib=document.getElementById('mtype_img'),vb=document.getElementById('mtype_vid');if(!iw)return;iw.style.display=t==='image'?'block':'none';vw.style.display=t==='video'?'block':'none';if(ib){ib.style.background=t==='image'?'#3B5A28':'#fff';ib.style.color=t==='image'?'#fff':'#5A4030';}if(vb){vb.style.background=t==='video'?'#3B5A28':'#fff';vb.style.color=t==='video'?'#fff':'#5A4030';}}
 function goOrder(){window.open('https://santar7021-ux.github.io/gwangjin/','_blank');}
 function renderLocation(){
+  // 이미지 고정 - 관리자만 직접 코드로 변경
   var img=document.getElementById('mapImg');
   var ph=document.getElementById('mapImgPh');
   if(!img||!ph) return;
-  var src=DB.locationImg||'';
-  if(src){
-    img.src=src;
-    img.style.display='block';
-    ph.style.display='none';
-  }else{
-    img.style.display='none';
-    ph.style.display='flex';
-  }
+  img.style.display='block';
+  ph.style.display='none';
 }
 function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 

@@ -396,29 +396,31 @@ function saveDB(){
   DB=sanitizeDB(DB);
   // 캐시 저장
   try{localStorage.setItem(CACHE_KEY,JSON.stringify(DB));}catch(e){}
-  // Sheets 저장
+  // Sheets 저장 (GET 방식 - CORS 없음)
   if(!API_URL||API_URL==='YOUR_APPS_SCRIPT_URL'){
-    toast('⚠️ API URL 미설정 - 로컬 저장만 됨');
+    toast('⚠️ API URL 미설정');
     return;
   }
-  var saves=[
-    {type:'banners', rows:DB.banners},
-    {type:'products', rows:DB.products},
-    {type:'notices', rows:DB.notices},
-    {type:'settings', settings:{
-      popup_show:String(DB.popup.show),
-      popup_title:DB.popup.title||'',
-      popup_desc:DB.popup.desc||'',
-      popup_img:DB.popup.imgUrl||'',
-      location_img:DB.locationImg||''
-    }}
-  ];
-  var done=0;
-  saves.forEach(function(body){
-    fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
-      .then(function(){done++;if(done===saves.length)toast('✅ 구글 시트에 저장 완료!');})
-      .catch(function(){toast('❌ 저장 실패 - 네트워크 확인');});
-  });
+  var payload={
+    banners:  DB.banners,
+    products: DB.products,
+    notices:  DB.notices,
+    settings:{
+      popup_show:  String(DB.popup.show),
+      popup_title: DB.popup.title  ||'',
+      popup_desc:  DB.popup.desc   ||'',
+      popup_img:   DB.popup.imgUrl ||'',
+      location_img:DB.locationImg  ||''
+    }
+  };
+  var url=API_URL+'?action=save&data='+encodeURIComponent(JSON.stringify(payload));
+  fetch(url)
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.ok) toast('✅ 구글 시트에 저장 완료!');
+      else toast('❌ 저장 오류: '+(d.error||''));
+    })
+    .catch(function(err){toast('❌ 저장 실패: '+err.message);});
 }
 function defDB(){return{
   banners:[

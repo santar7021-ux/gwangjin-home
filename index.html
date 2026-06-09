@@ -630,36 +630,24 @@ function loadData(callback){
     .catch(function(){/* 네트워크 오류 시 캐시 유지 */});
 }
 
-// ── 데이터 저장: Sheets + 캐시 동시 저장 ──
+// ── 데이터 저장: GET 방식 (CORS 문제 없음) ──
 function saveData(d){
-  // 캐시 저장
   try{localStorage.setItem(CACHE_KEY,JSON.stringify(d));}catch(e){}
-  // Sheets 저장
   if(!API_URL||API_URL==='YOUR_APPS_SCRIPT_URL') return;
   var payload={
-    type:'settings',
+    banners:  d.banners,
+    products: d.products,
+    notices:  d.notices,
     settings:{
-      popup_show: String(d.popup.show),
-      popup_title: d.popup.title||'',
-      popup_desc: d.popup.desc||'',
-      popup_img: d.popup.imgUrl||'',
-      location_img: d.locationImg||''
+      popup_show:  String(d.popup.show),
+      popup_title: d.popup.title  ||'',
+      popup_desc:  d.popup.desc   ||'',
+      popup_img:   d.popup.imgUrl ||'',
+      location_img:d.locationImg  ||''
     }
   };
-  // 각 섹션별 저장
-  saveSection('banners', d.banners);
-  saveSection('products', d.products);
-  saveSection('notices', d.notices);
-  saveSection('settings_only', null, payload);
-}
-
-function saveSection(type, rows, customPayload){
-  var body=customPayload||{type:type, rows:rows};
-  fetch(API_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(body)
-  }).catch(function(){});
+  var url=API_URL+'?action=save&data='+encodeURIComponent(JSON.stringify(payload));
+  fetch(url).catch(function(){});
 }
 function defData(){return{
   banners:[

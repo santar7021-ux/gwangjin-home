@@ -93,25 +93,10 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
 @media(max-width:600px){.g2{grid-template-columns:1fr;}}
 
 /* ══ 이미지 업로드 영역 (핵심 개선) ══ */
+/* 이미지 URL 입력 */
 .img-upload-wrap{margin-bottom:14px;}
-.img-tabs{display:flex;gap:6px;margin-bottom:10px;}
-.img-tab{padding:6px 14px;border:1.5px solid var(--bd);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:var(--txt2);transition:.15s;font-family:inherit;}
-.img-tab.on{background:var(--gr);border-color:var(--gr);color:#fff;}
-.img-panel{display:none;}
-.img-panel.on{display:block;}
 
-/* 파일 업로드 드롭존 */
-.dropzone{
-  width:100%;border:2.5px dashed var(--bd);border-radius:12px;
-  background:var(--ivory);text-align:center;
-  padding:24px 16px;cursor:pointer;transition:.2s;position:relative;
-  overflow:hidden;
-}
-.dropzone:hover,.dropzone.drag{border-color:var(--gr);background:var(--gd);}
-.dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-.dropzone-ico{font-size:32px;margin-bottom:8px;}
-.dropzone-txt{font-size:13px;font-weight:600;color:var(--txt2);}
-.dropzone-sub{font-size:11px;color:var(--txt3);margin-top:4px;}
+
 
 /* 이미지 미리보기 박스 */
 .imgbox{
@@ -294,22 +279,11 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
             <textarea class="ta" id="pp_desc" placeholder="팝업 내용을 입력하세요." oninput="prevPopup()"></textarea>
             <label class="lbl">팝업 이미지</label>
             <div class="img-upload-wrap" id="pp_img_wrap">
-              <div class="img-tabs">
-                <button class="img-tab on" onclick="switchTab('pp','file')">📁 파일 업로드</button>
-                <button class="img-tab" onclick="switchTab('pp','url')">🔗 URL 입력</button>
+              <div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:10px 13px;font-size:12px;color:#92400E;line-height:1.8;margin-bottom:10px;">
+                📌 이미지는 <strong>구글 드라이브 공유 링크</strong>로 입력하세요.<br>
+                드라이브 파일 우클릭 → 공유 → "링크가 있는 모든 사용자" 설정 → 링크 복사
               </div>
-              <div class="img-panel on" id="pp_panel_file">
-                <div class="dropzone" id="pp_dropzone">
-                  <input type="file" accept="image/*" onchange="handleFile(this,'pp')">
-                  <div class="dropzone-ico">📷</div>
-                  <div class="dropzone-txt">클릭하거나 이미지를 끌어다 놓으세요</div>
-                  <div class="dropzone-sub">JPG · PNG · WEBP</div>
-                </div>
-              </div>
-              <div class="img-panel" id="pp_panel_url">
-                <input class="inp" id="pp_url_inp" placeholder="https://drive.google.com/uc?export=view&id=..." oninput="handleUrl(this,'pp')" style="margin-bottom:0;">
-                <div style="font-size:11px;color:var(--txt3);margin-top:4px;">구글 드라이브: 파일 우클릭 → 공유 → 링크의 ID를 위 형식으로 입력</div>
-              </div>
+              <input class="inp" id="pp_url_inp" placeholder="https://drive.google.com/file/d/파일ID/view 또는 직접 이미지 URL" oninput="handleUrl(this,'pp')" style="margin-bottom:0;">
               <div class="size-tip" style="margin-top:10px;">📐 <strong>권장: 750 × 560px</strong> (4:3 비율) · 1MB 이하</div>
               <div class="imgbox imgbox-popup" id="pp_imgbox">
                 <div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 미리보기</div></div>
@@ -368,26 +342,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
 
 <div class="toast" id="toast"></div>
 
-<!-- 이미지 위젯 템플릿 -->
+<!-- 이미지 위젯 템플릿 (URL 전용) -->
 <template id="tpl-imgwidget">
   <div class="img-upload-wrap">
-    <div class="img-tabs">
-      <button class="img-tab on iw-tab-file">📁 파일 업로드</button>
-      <button class="img-tab iw-tab-url">🔗 URL 입력</button>
+    <div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:10px 13px;font-size:12px;color:#92400E;line-height:1.8;margin-bottom:8px;">
+      📌 <strong>구글 드라이브 사용법</strong><br>
+      파일 우클릭 → 공유 → "링크가 있는 모든 사용자" → 링크 복사 후 붙여넣기
     </div>
-    <div class="img-panel on iw-file-panel">
-      <div class="dropzone">
-        <input type="file" accept="image/*" class="iw-file-input">
-        <div class="dropzone-ico">📷</div>
-        <div class="dropzone-txt">클릭하거나 이미지를 끌어다 놓으세요</div>
-        <div class="dropzone-sub">JPG · PNG · WEBP</div>
-      </div>
-    </div>
-    <div class="img-panel iw-url-panel">
-      <input class="inp iw-url-inp" placeholder="https://drive.google.com/uc?export=view&id=..." style="margin-bottom:0;">
-      <div style="font-size:11px;color:var(--txt3);margin-top:4px;">구글 드라이브 링크를 붙여넣으세요.</div>
-    </div>
-    <div class="size-tip iw-size" style="margin-top:10px;"></div>
+    <input class="inp iw-url-inp" placeholder="https://drive.google.com/file/d/파일ID/view 또는 직접 이미지 URL" style="margin-bottom:0;">
+    <div class="size-tip iw-size" style="margin-top:8px;"></div>
     <div class="imgbox iw-imgbox">
       <div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 미리보기</div></div>
     </div>
@@ -430,7 +393,22 @@ function loadDB(callback){
     .catch(function(){toast('⚠️ 오프라인 - 캐시 데이터 사용 중');});
 }
 
+function cleanImgUrl(url){
+  // base64 데이터 URL이면 빈 문자열 반환 (Sheets 저장 불가)
+  if(!url) return '';
+  if(url.startsWith('data:')) return '';
+  return url;
+}
+function sanitizeDB(d){
+  d.banners.forEach(function(b){b.imgUrl=cleanImgUrl(b.imgUrl);});
+  d.products.forEach(function(p){p.imgUrl=cleanImgUrl(p.imgUrl);});
+  d.notices.forEach(function(n){n.imgUrl=cleanImgUrl(n.imgUrl);});
+  d.popup.imgUrl=cleanImgUrl(d.popup.imgUrl);
+  d.locationImg=cleanImgUrl(d.locationImg);
+  return d;
+}
 function saveDB(){
+  DB=sanitizeDB(DB);
   // 캐시 저장
   try{localStorage.setItem(CACHE_KEY,JSON.stringify(DB));}catch(e){}
   // Sheets 저장
@@ -525,32 +503,9 @@ function goTab(t){
   document.getElementById('sbDim').classList.remove('show');
 }
 
-/* ══ 이미지 탭 전환 ══ */
-function switchTab(prefix,tab){
-  ['file','url'].forEach(function(t){
-    document.getElementById(prefix+'_panel_'+t).classList.toggle('on',t===tab);
-  });
-  var tabs=document.querySelectorAll('#panel-'+currentPanel+' .img-tab, .pp-prev-card ~ .box .img-tab, .box-bd .img-tab');
-  // 해당 prefix의 탭 버튼 업데이트
-  var wrap=document.getElementById(prefix+'_img_wrap')||document.getElementById(prefix+'_img_wrap_dyn');
-  if(wrap){
-    wrap.querySelectorAll('.img-tab').forEach(function(el){
-      el.classList.toggle('on', el.textContent.indexOf(tab==='file'?'파일':'URL')>=0);
-    });
-  }
-}
 var currentPanel='popup';
 
-/* ══ 이미지 처리 ══ */
-function handleFile(input,prefix){
-  var file=input.files[0];
-  if(!file)return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    setImgVal(prefix, e.target.result);
-  };
-  reader.readAsDataURL(file);
-}
+
 
 function handleUrl(input,prefix){
   setImgVal(prefix, input.value.trim());
@@ -611,18 +566,7 @@ function imgWidget(prefix, currentVal, boxClass, sizeText){
   return div.innerHTML;
 }
 
-function switchTabDyn(prefix,tab){
-  var fp=document.getElementById(prefix+'_panel_file_dyn');
-  var up=document.getElementById(prefix+'_panel_url_dyn');
-  var wrap=document.getElementById(prefix+'_img_wrap_dyn');
-  if(fp) fp.classList.toggle('on',tab==='file');
-  if(up) up.classList.toggle('on',tab==='url');
-  if(wrap){
-    var tabs=wrap.querySelectorAll('.img-tab');
-    if(tabs[0]) tabs[0].classList.toggle('on',tab==='file');
-    if(tabs[1]) tabs[1].classList.toggle('on',tab==='url');
-  }
-}
+
 
 /* ══ 초기화 ══ */
 function initAll(){renderStats();loadPopupForm();renderBanners();renderProducts();renderNotices();}
@@ -704,7 +648,7 @@ function bForm(b,i){
       +'background:'+(!imgOn?'var(--gr)':'#fff')+';color:'+(!imgOn?'#fff':'var(--txt2)')+';">🎬 영상</button>'
     +'</div>'
     +'<div id="bmedia_img_'+i+'" style="display:'+(imgOn?'block':'none')+'">'
-      +'<label class="lbl">이미지 (파일 업로드 or URL)</label>'
+      +'<label class="lbl">이미지 URL</label>'
       +imgWidget(pfx, b.imgUrl||'', 'imgbox-banner', '<strong>권장: 1200 × 525px</strong> (16:7) · JPG/PNG · 2MB 이하')
     +'</div>'
     +'<div id="bmedia_vid_'+i+'" style="display:'+(!imgOn?'block':'none')+'">'
@@ -857,13 +801,7 @@ document.addEventListener('click', function(e){
     if(pfx) clearImg(pfx);
   }
 });
-document.addEventListener('change', function(e){
-  var target=e.target;
-  if(target.classList.contains('iw-file-input')){
-    var pfx=target.getAttribute('data-prefix');
-    if(pfx) handleFile(target, pfx);
-  }
-});
+
 document.addEventListener('input', function(e){
   var target=e.target;
   if(target.classList.contains('iw-url-inp')){

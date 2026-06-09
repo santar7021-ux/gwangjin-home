@@ -259,9 +259,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
 
   <aside class="sb" id="sb">
     <div class="sb-logo">
-      <div class="sb-logo-ico">🍐</div>
-      <div class="sb-logo-title">남양주 먹골배<br>광진농원</div>
-      <div class="sb-logo-sub">Admin Dashboard</div>
+      <a href="https://santar7021-ux.github.io/gwangjin-home/" target="_blank" style="text-decoration:none;display:block;"><div class="sb-logo-ico">🍐</div><div class="sb-logo-title">남양주 먹골배<br>광진농원</div><div class="sb-logo-sub" style="color:rgba(255,255,255,.5);">Since 1995 · 홈으로 →</div></a>
     </div>
     <nav class="sb-nav">
       <div class="sb-sec">콘텐츠 관리</div>
@@ -656,14 +654,18 @@ function bForm(b,i){
     +'</div>'
     +'<div id="bmedia_vid_'+i+'" style="display:'+(!imgOn?'block':'none')+'">'
       +'<label class="lbl">영상 URL</label>'
-      +'<input class="inp" id="b_vurl_'+i+'" value="'+esc(b.videoUrl||'')+'" placeholder="유튜브: https://youtube.com/watch?v=xxx  또는  MP4 직접 링크">'
-      +'<div class="hint">유튜브 주소 또는 MP4 직접 링크를 입력하세요.</div>'
-      +'<label class="lbl">영상 유형</label>'
-      +'<select class="sel" id="b_vtype_'+i+'">'
-        +'<option value="youtube"'+((!b.videoType||b.videoType==='youtube')?' selected':'')+'>🎬 유튜브 (YouTube)</option>'
-        +'<option value="mp4"'+(b.videoType==='mp4'?' selected':'')+'>📁 MP4 파일 직접 링크</option>'
-      +'</select>'
-      +'<div class="size-tip">📌 <strong>유튜브</strong>: 자동재생·음소거·반복 재생됩니다.<br>📌 <strong>MP4</strong>: 구글 드라이브 공유링크 또는 직접 URL을 입력하세요.</div>'
+      +'<input class="inp" id="b_vurl_'+i+'" value="'+esc(b.videoUrl||'')+'" placeholder="구글 드라이브 공유 링크 또는 유튜브 URL">'
+      +'<div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:11px 13px;font-size:12px;color:#92400E;line-height:1.9;margin-bottom:10px;">'
+        +'📌 <strong>구글 드라이브 영상 사용법</strong><br>'
+        +'① 드라이브에서 영상 파일 우클릭 → 공유<br>'
+        +'② <strong>"링크가 있는 모든 사용자"</strong> 로 변경<br>'
+        +'③ 공유 링크 복사 후 위에 붙여넣기 (자동 변환됨)<br>'
+        +'<span style="color:#B45309;">⚠️ MP4 파일 100MB 이하 권장 · 첫 로딩이 느릴 수 있어요</span>'
+      +'</div>'
+      +'<div style="background:#EFF6FF;border:1px solid #93C5FD;border-radius:8px;padding:11px 13px;font-size:12px;color:#1D4ED8;line-height:1.9;">'
+        +'📌 <strong>유튜브 사용법</strong> (채널 개설 후)<br>'
+        +'youtube.com/watch?v=XXXXX 형식으로 입력하시면 자동 인식됩니다.'
+      +'</div>'
     +'</div>'
     +'<div class="btn-row"><button class="btn-save" onclick="saveBanner('+i+')">💾 저장</button><button class="btn-del" onclick="delBanner('+i+')">🗑 삭제</button></div>';
 }
@@ -683,16 +685,19 @@ function saveBanner(i){
   var vw=document.getElementById('bmedia_vid_'+i);
   var useV=vw&&vw.style.display!=='none';
   var vurl=document.getElementById('b_vurl_'+i);
-  var vtype=document.getElementById('b_vtype_'+i);
+  var vu=useV&&vurl?vurl.value.trim():'';
+  // 유형 자동 판별: 유튜브 링크면 youtube, 나머지 mp4
+  var vt=vu?(getYoutubeId(vu)?'youtube':'mp4'):'';
   DB.banners[i]={
     title:document.getElementById('b_t_'+i).value,
     sub:document.getElementById('b_s_'+i).value,
     imgUrl:useV?'':getImgVal(pfx),
-    videoUrl:useV&&vurl?vurl.value:'',
-    videoType:useV&&vtype?vtype.value:'',
+    videoUrl:vu,
+    videoType:vt,
     bg:DB.banners[i].bg||'#2D1F0E'
   };
-  saveDB();renderBanners();renderStats();toast('✅ 배너 저장!');
+  saveDB();renderBanners();renderStats();
+  toast(vu?'✅ 배너 저장! ('+vt+' 영상)':'✅ 배너 저장!');
 }
 function delBanner(i){if(!confirm('배너를 삭제할까요?'))return;DB.banners.splice(i,1);saveDB();renderBanners();renderStats();toast('🗑 삭제됐습니다.');}
 function addBanner(){DB.banners.push({title:'새 배너',sub:'부제목',imgUrl:'',bg:'#2D1F0E'});saveDB();renderBanners();renderStats();setTimeout(function(){togIC('b',DB.banners.length-1);},80);toast('➕ 배너 추가!');}
@@ -811,6 +816,24 @@ document.addEventListener('input', function(e){
     if(pfx) handleUrl(target, pfx);
   }
 });
+
+/* ══ 영상 유틸 ══ */
+function getYoutubeId(u){
+  if(!u) return '';
+  var pp=[/[?&]v=([^&#]{11})/,/youtu\.be\/([^?&#]{11})/,/\/embed\/([^?&#]{11})/,/\/shorts\/([^?&#]{11})/];
+  for(var k=0;k<pp.length;k++){var m=u.match(pp[k]);if(m&&m[1])return m[1];}
+  return '';
+}
+function convertVideoUrl(url){
+  if(!url) return '';
+  var m1=url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+  if(m1) return 'https://drive.google.com/uc?export=download&id='+m1[1];
+  var m2=url.match(/drive\.google\.com\/open\?id=([^&]+)/);
+  if(m2) return 'https://drive.google.com/uc?export=download&id='+m2[1];
+  var m3=url.match(/drive\.google\.com\/uc\?.*id=([^&]+)/);
+  if(m3) return 'https://drive.google.com/uc?export=download&id='+m3[1];
+  return url;
+}
 </script>
 </body>
 </html>

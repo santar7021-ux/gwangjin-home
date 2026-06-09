@@ -329,11 +329,11 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
 
 <!-- 헤더 -->
 <header class="hdr">
-  <a class="hdr-logo" href="#">
+  <a class="hdr-logo" href="https://santar7021-ux.github.io/gwangjin-home/">
     <div class="hdr-logo-ico">🍐</div>
     <div class="hdr-logo-text">
       <div class="hdr-logo-main">남양주 먹골배 광진농원</div>
-      <div class="hdr-logo-sub">Gwangjin Farm · Since 1990</div>
+      <div class="hdr-logo-sub">Gwangjin Farm · Since 1995</div>
     </div>
   </a>
   <div class="hdr-btns">
@@ -494,35 +494,68 @@ function renderBanners(){
   DB.banners.forEach(function(b,i){
     var s=document.createElement('div');
     s.style.cssText='min-width:100%;height:100%;position:relative;flex-shrink:0;overflow:hidden;';
-    var media='';
+
     var ytId=b.videoUrl?getYoutubeId(b.videoUrl):'';
+
     if(b.videoUrl&&ytId){
-      // 유튜브: 음소거 자동재생 반복
-      media='<iframe src="https://www.youtube.com/embed/'+ytId
+      // ── 유튜브: iframe을 createElement로 직접 생성 ──
+      var iframe=document.createElement('iframe');
+      iframe.src='https://www.youtube.com/embed/'+ytId
         +'?autoplay=1&mute=1&loop=1&playlist='+ytId
-        +'&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"'
-        +' style="position:absolute;top:50%;left:50%;width:177.78%;height:100%;'
-        +'transform:translate(-50%,-50%);border:none;pointer-events:none;"'
-        +' allow="autoplay;encrypted-media" allowfullscreen></iframe>';
+        +'&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1';
+      iframe.setAttribute('allow','autoplay; encrypted-media; fullscreen');
+      iframe.setAttribute('allowfullscreen','');
+      iframe.setAttribute('frameborder','0');
+      iframe.style.cssText='position:absolute;top:50%;left:50%;'
+        +'width:177.78%;height:100%;'
+        +'transform:translate(-50%,-50%);'
+        +'border:none;pointer-events:none;';
+      s.appendChild(iframe);
+
     } else if(b.videoUrl&&b.videoType==='mp4'){
-      // MP4 직접 링크
-      var src=b.videoUrl;
-      var dm=src.match(/\/file\/d\/([^/]+)/);
-      if(dm) src='https://drive.google.com/uc?export=download&id='+dm[1];
-      media='<video autoplay muted loop playsinline'
-        +' style="position:absolute;top:50%;left:50%;min-width:100%;min-height:100%;'
-        +'width:auto;height:auto;transform:translate(-50%,-50%);object-fit:cover;">'
-        +'<source src="'+src+'" type="video/mp4"></video>';
+      // ── MP4: 구글 드라이브 링크 자동 변환 + 안정적 재생 ──
+      var src=convertVideoUrl(b.videoUrl);
+      var vid=document.createElement('video');
+      vid.autoplay=true;
+      vid.muted=true;
+      vid.loop=true;
+      vid.setAttribute('playsinline','');
+      vid.setAttribute('webkit-playsinline','');
+      vid.setAttribute('x5-playsinline','');
+      vid.style.cssText='position:absolute;top:50%;left:50%;'
+        +'min-width:100%;min-height:100%;width:auto;height:auto;'
+        +'transform:translate(-50%,-50%);object-fit:cover;';
+      vid.onerror=function(){
+        this.style.display='none';
+        s.style.background=b.bg||'#2D1F0E';
+      };
+      var source=document.createElement('source');
+      source.src=src;
+      source.type='video/mp4';
+      vid.appendChild(source);
+      s.appendChild(vid);
+      vid.load();
+      vid.play().catch(function(){});
+
     } else if(b.imgUrl){
-      media='<img src="'+b.imgUrl+'" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display=\'none\'">';
+      var img=document.createElement('img');
+      img.src=b.imgUrl;
+      img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+      img.onerror=function(){this.style.display='none';};
+      s.appendChild(img);
+
     } else {
-      media='<div style="width:100%;height:100%;background:'+b.bg+';"></div>';
+      var bg=document.createElement('div');
+      bg.style.cssText='width:100%;height:100%;background:'+b.bg+';';
+      s.appendChild(bg);
     }
-    s.innerHTML=media
-      +'<div class="banner-ov">'
-      +'<div class="banner-title">'+b.title.replace(/\n/g,'<br>')+'</div>'
-      +'<div class="banner-sub">'+b.sub+'</div>'
-      +'</div>';
+
+    // 오버레이 텍스트
+    var ov=document.createElement('div');
+    ov.className='banner-ov';
+    ov.innerHTML='<div class="banner-title">'+b.title.replace(/\n/g,'<br>')+'</div>'
+      +'<div class="banner-sub">'+b.sub+'</div>';
+    s.appendChild(ov);
     tr.appendChild(s);
     var d=document.createElement('div');
     d.className='banner-dot'+(i===0?' act':'');
@@ -649,14 +682,52 @@ function buildForm(mode,idx){
   if(mode==='notice')d=(idx>=0&&DB.notices[idx])?DB.notices[idx]:{type:'notice',title:'',text:'',imgUrl:'',date:new Date().toISOString().slice(0,10)};
   if(mode==='popup')d=DB.popup;
   var del=(idx>=0)?'<button type="button" onclick="deleteItem()" style="color:#E05040;background:none;border:none;font-size:13px;cursor:pointer;padding:4px;">🗑 삭제</button>':'';
-  if(mode==='banner')return '<div><div class="ed-lbl">제목</div><textarea class="ed-ta" id="ef_title" style="min-height:55px;">'+d.title+'</textarea></div><div><div class="ed-lbl">부제목</div><input class="ed-inp" id="ef_sub" value="'+d.sub+'"></div><div><div class="ed-lbl">이미지 URL</div><input class="ed-inp ed-img-url" id="ef_imgUrl" value="'+(d.imgUrl||'')+'" placeholder="https://..."><img class="ed-imgprev"></div><div style="display:flex;justify-content:flex-end;">'+del+'</div>';
+  if(mode==='banner'){
+    var _mt=d.videoUrl?'video':'image';
+    var _io=_mt==='image';
+    var _gs='flex:1;padding:9px;border:1.5px solid #D8C8B0;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;';
+    return '<div><div class="ed-lbl">제목</div><textarea class="ed-ta" id="ef_title" style="min-height:55px;">'+d.title+'</textarea></div>'
+      +'<div><div class="ed-lbl">부제목</div><input class="ed-inp" id="ef_sub" value="'+d.sub+'"></div>'
+      +'<div style="margin-bottom:12px;"><div class="ed-lbl" style="margin-bottom:8px;">미디어 유형</div>'
+      +'<div style="display:flex;gap:8px;">'
+      +'<button type="button" id="mtype_img" onclick="switchMType(\'image\')" style="'+_gs+'background:'+(_io?'#3B5A28':'#fff')+';color:'+(_io?'#fff':'#5A4030')+';">🖼️ 이미지</button>'
+      +'<button type="button" id="mtype_vid" onclick="switchMType(\'video\')" style="'+_gs+'background:'+(_io?'#fff':'#3B5A28')+';color:'+(_io?'#5A4030':'#fff')+';">🎬 영상</button>'
+      +'</div></div>'
+      +'<div id="ef_image_wrap" style="display:'+(_io?'block':'none')+'">'
+      +'<div class="ed-lbl">이미지 URL</div>'
+      +'<input class="ed-inp ed-img-url" id="ef_imgUrl" value="'+(d.imgUrl||'')+'" placeholder="https://drive.google.com/uc?export=view&id=...">'
+      +'<img class="ed-imgprev"></div>'
+      +'<div id="ef_video_wrap" style="display:'+(_io?'none':'block')+'">'
+      +'<div class="ed-lbl">영상 URL</div>'
+      +'<input class="ed-inp" id="ef_videoUrl" value="'+(d.videoUrl||'')+'" placeholder="구글 드라이브 공유 링크 또는 유튜브 URL">'
+      +'<div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:11px 13px;font-size:12px;color:#92400E;line-height:1.9;margin-bottom:10px;">'
+      +'📌 <strong>구글 드라이브 영상 사용법</strong><br>'
+      +'① 드라이브에서 영상 파일 우클릭 → 공유<br>'
+      +'② <strong>"링크가 있는 모든 사용자"</strong> 로 변경<br>'
+      +'③ 공유 링크 복사 후 위에 붙여넣기<br>'
+      +'<span style="color:#B45309;">⚠️ MP4 파일 100MB 이하 권장 · 첫 로딩이 느릴 수 있어요</span>'
+      +'</div>'
+      +'<div style="background:#EFF6FF;border:1px solid #93C5FD;border-radius:8px;padding:11px 13px;font-size:12px;color:#1D4ED8;line-height:1.9;">'
+      +'📌 <strong>유튜브 사용법</strong> (채널 개설 후)<br>'
+      +'youtube.com/watch?v=XXXXX 형식으로 입력하시면 자동 인식됩니다.'
+      +'</div></div>'
+      +'<div style="display:flex;justify-content:flex-end;margin-top:8px;">'+del+'</div>';
+  }
   if(mode==='product')return '<div><div class="ed-lbl">상품명</div><input class="ed-inp" id="ef_name" value="'+d.name+'"></div><div><div class="ed-lbl">설명</div><textarea class="ed-ta" id="ef_desc">'+d.desc+'</textarea></div><div><div class="ed-lbl">가격</div><input class="ed-inp" id="ef_price" value="'+d.price+'" placeholder="45,000원"></div><div><div class="ed-lbl">뱃지 (BEST·신상·실속 등)</div><input class="ed-inp" id="ef_badge" value="'+d.badge+'"></div><div><div class="ed-lbl">이미지 URL</div><input class="ed-inp ed-img-url" id="ef_imgUrl" value="'+(d.imgUrl||'')+'" placeholder="https://..."><img class="ed-imgprev"></div><div style="display:flex;justify-content:flex-end;">'+del+'</div>';
   if(mode==='notice')return '<div><div class="ed-lbl">유형</div><select class="ed-sel" id="ef_type"><option value="notice"'+(d.type==='notice'?' selected':'')+'>공지</option><option value="event"'+(d.type==='event'?' selected':'')+'>이벤트</option><option value="info"'+(d.type==='info'?' selected':'')+'>안내</option></select></div><div><div class="ed-lbl">제목</div><input class="ed-inp" id="ef_title" value="'+d.title+'"></div><div><div class="ed-lbl">내용</div><textarea class="ed-ta" id="ef_text">'+d.text+'</textarea></div><div><div class="ed-lbl">날짜</div><input class="ed-inp" id="ef_date" type="date" value="'+d.date+'"></div><div><div class="ed-lbl">이미지 URL</div><input class="ed-inp ed-img-url" id="ef_imgUrl" value="'+(d.imgUrl||'')+'" placeholder="https://..."><img class="ed-imgprev"></div><div style="display:flex;justify-content:flex-end;">'+del+'</div>';
   if(mode==='popup')return '<div><div class="ed-lbl">팝업 표시</div><select class="ed-sel" id="ef_show"><option value="1"'+(d.show?' selected':'')+'>표시</option><option value="0"'+(!d.show?' selected':'')+'>숨김</option></select></div><div><div class="ed-lbl">제목</div><input class="ed-inp" id="ef_title" value="'+d.title+'"></div><div><div class="ed-lbl">내용</div><textarea class="ed-ta" id="ef_desc">'+d.desc+'</textarea></div><div><div class="ed-lbl">이미지 URL</div><input class="ed-inp ed-img-url" id="ef_imgUrl" value="'+(d.imgUrl||'')+'" placeholder="https://..."><img class="ed-imgprev"></div>';
 }
 function g(id){var el=document.getElementById(id);return el?el.value:'';}
 function saveED(){
-  if(edMode==='banner'){var _vw=document.getElementById('ef_video_wrap'),_useV=_vw&&_vw.style.display!=='none';var it={title:g('ef_title'),sub:g('ef_sub'),imgUrl:_useV?'':g('ef_imgUrl'),videoUrl:_useV?g('ef_videoUrl'):'',videoType:_useV?g('ef_videoType'):'',bg:'#2D1F0E'};if(edIdx>=0)DB.banners[edIdx]=it;else DB.banners.push(it);saveData(DB);closeED();renderBanners();showToast('배너 저장!');}
+  if(edMode==='banner'){
+    var _vw=document.getElementById('ef_video_wrap'),_useV=_vw&&_vw.style.display!=='none';
+    var _vu=_useV?g('ef_videoUrl'):'';
+    // 유형 자동 판별: 유튜브 링크면 youtube, 나머지는 mp4
+    var _vt=_vu?(getYoutubeId(_vu)?'youtube':'mp4'):'';
+    var it={title:g('ef_title'),sub:g('ef_sub'),imgUrl:_useV?'':g('ef_imgUrl'),videoUrl:_vu,videoType:_vt,bg:'#2D1F0E'};
+    if(edIdx>=0)DB.banners[edIdx]=it;else DB.banners.push(it);
+    saveData(DB);closeED();renderBanners();showToast('배너 저장!');
+  }
   if(edMode==='product'){var it={name:g('ef_name'),desc:g('ef_desc'),price:g('ef_price'),badge:g('ef_badge'),imgUrl:g('ef_imgUrl')};if(edIdx>=0)DB.products[edIdx]=it;else DB.products.push(it);saveData(DB);closeED();renderProducts();showToast('상품 저장!');}
   if(edMode==='notice'){var it={type:g('ef_type'),title:g('ef_title'),text:g('ef_text'),date:g('ef_date'),imgUrl:g('ef_imgUrl')};if(edIdx>=0)DB.notices[edIdx]=it;else DB.notices.unshift(it);saveData(DB);closeED();renderNotices();showToast('공지 저장!');}
   if(edMode==='popup'){DB.popup={show:g('ef_show')==='1',title:g('ef_title'),desc:g('ef_desc'),imgUrl:g('ef_imgUrl')};saveData(DB);closeED();showToast('팝업 저장!');}
@@ -668,7 +739,28 @@ function deleteItem(){
   if(edMode==='notice'&&edIdx>=0){DB.notices.splice(edIdx,1);saveData(DB);closeED();renderNotices();}
   showToast('삭제됐어요.');
 }
-function getYoutubeId(u){if(!u)return '';var m=u.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/)|(youtu\.be\/))([^"&?/\s]{11})/);return m?m[m.length-1]:'';}
+function getYoutubeId(u){
+  if(!u) return '';
+  var pp=[/[?&]v=([^&#]{11})/,/youtu\.be\/([^?&#]{11})/,/\/embed\/([^?&#]{11})/,/\/shorts\/([^?&#]{11})/,/\/v\/([^?&#]{11})/];
+  for(var k=0;k<pp.length;k++){var m=u.match(pp[k]);if(m&&m[1])return m[1];}
+  return '';
+}
+
+// 구글 드라이브 공유 링크 → 직접 재생 가능한 URL로 변환
+function convertVideoUrl(url){
+  if(!url) return '';
+  // https://drive.google.com/file/d/FILE_ID/view
+  var m1=url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+  if(m1) return 'https://drive.google.com/uc?export=download&id='+m1[1];
+  // https://drive.google.com/open?id=FILE_ID
+  var m2=url.match(/drive\.google\.com\/open\?id=([^&]+)/);
+  if(m2) return 'https://drive.google.com/uc?export=download&id='+m2[1];
+  // https://drive.google.com/uc?id=FILE_ID (이미 변환된 형태)
+  var m3=url.match(/drive\.google\.com\/uc\?.*id=([^&]+)/);
+  if(m3) return 'https://drive.google.com/uc?export=download&id='+m3[1];
+  // 그 외 직접 링크는 그대로 사용
+  return url;
+}
 function switchMType(t){var iw=document.getElementById('ef_image_wrap'),vw=document.getElementById('ef_video_wrap'),ib=document.getElementById('mtype_img'),vb=document.getElementById('mtype_vid');if(!iw)return;iw.style.display=t==='image'?'block':'none';vw.style.display=t==='video'?'block':'none';if(ib){ib.style.background=t==='image'?'#3B5A28':'#fff';ib.style.color=t==='image'?'#fff':'#5A4030';}if(vb){vb.style.background=t==='video'?'#3B5A28':'#fff';vb.style.color=t==='video'?'#fff':'#5A4030';}}
 function goOrder(){window.open('https://santar7021-ux.github.io/gwangjin/','_blank');}
 function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}

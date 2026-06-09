@@ -359,7 +359,7 @@ function loadDB(callback){
 
   // 2. Sheets에서 최신 fetch
   if(!API_URL||API_URL==='YOUR_APPS_SCRIPT_URL'){return;}
-  fetch(API_URL+'?t='+Date.now())
+  fetch(API_URL+'?action=read&t='+Date.now())
     .then(function(r){return r.json();})
     .then(function(data){
       if(!data.ok) return;

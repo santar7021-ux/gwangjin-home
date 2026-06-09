@@ -527,8 +527,9 @@ function clearImg(prefix){
 
 /* ── 이미지 URL 위젯 (심플) ── */
 function imgWidget(prefix, currentVal, boxClass, sizeText){
-  var imgHtml=currentVal
-    ?'<img src="'+esc(currentVal)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div class=imgbox-ph><div class=imgbox-ph-ico>❌</div><div class=imgbox-ph-txt>이미지를 불러올 수 없어요</div></div>\'">'
+  var _cv=driveUrl(currentVal||'');
+  var imgHtml=_cv
+    ?'<img src="'+_cv+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div class=imgbox-ph><div class=imgbox-ph-ico>❌</div><div class=imgbox-ph-txt>이미지를 불러올 수 없어요<br><span style=font-size:10px;color:#999>드라이브 공유 설정을 확인하세요</span></div></div>\'">'
     :'<div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 미리보기</div></div>';
   return '<input class="inp" id="'+prefix+'_img_val" value="'+esc(currentVal||'')+'"'
     +' placeholder="https://drive.google.com/uc?export=view&id=..."'
@@ -538,13 +539,27 @@ function imgWidget(prefix, currentVal, boxClass, sizeText){
     +'<div class="size-tip">📐 '+sizeText+'</div>'
     +'<div class="imgbox '+boxClass+'" id="'+prefix+'_imgbox">'+imgHtml+'</div>';
 }
+function driveUrl(url){
+  if(!url) return '';
+  // https://drive.google.com/file/d/ID/view → thumbnail
+  var m1=url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+  if(m1) return 'https://drive.google.com/thumbnail?id='+m1[1]+'&sz=w1200';
+  // https://drive.google.com/open?id=ID
+  var m2=url.match(/drive\.google\.com\/open\?id=([^&]+)/);
+  if(m2) return 'https://drive.google.com/thumbnail?id='+m2[1]+'&sz=w1200';
+  // https://drive.google.com/uc?id=ID or export=view&id=ID
+  var m3=url.match(/[?&]id=([^&]+)/);
+  if(m3&&url.indexOf('drive.google.com')>-1) return 'https://drive.google.com/thumbnail?id='+m3[1]+'&sz=w1200';
+  return url;
+}
 function previewImg(prefix){
-  var url=document.getElementById(prefix+'_img_val');
+  var input=document.getElementById(prefix+'_img_val');
   var box=document.getElementById(prefix+'_imgbox');
-  if(!url||!box)return;
-  var v=url.value.trim();
+  if(!input||!box)return;
+  var raw=input.value.trim();
+  var v=driveUrl(raw);
   box.innerHTML=v
-    ?'<img src="'+v+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div class=imgbox-ph><div class=imgbox-ph-ico>❌</div><div class=imgbox-ph-txt>이미지를 불러올 수 없어요</div></div>\'">'
+    ?'<img src="'+v+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div class=imgbox-ph><div class=imgbox-ph-ico>❌</div><div class=imgbox-ph-txt>이미지를 불러올 수 없어요<br><span style=font-size:10px;color:#999>드라이브 공유 설정을 확인하세요</span></div></div>\'">'
     :'<div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 미리보기</div></div>';
 }
 function getImgVal(prefix){

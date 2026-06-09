@@ -353,34 +353,43 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
 }
 .btn-kakao-map:hover{opacity:.9;}
 
-.map-frame-wrap{
-  position:relative;border-radius:var(--r);overflow:hidden;
+/* 지도 이미지 영역 */
+.map-img-wrap{
+  display:block;position:relative;
+  border-radius:var(--r);overflow:hidden;
   border:1px solid var(--bds);
-  min-height:320px;
+  min-height:280px;
   background:var(--ivory);
+  text-decoration:none;
+  cursor:pointer;
+  transition:transform .2s, box-shadow .2s;
 }
-@media(min-width:768px){.map-frame-wrap{min-height:360px;}}
-@media(min-width:1024px){.map-frame-wrap{min-height:400px;}}
+.map-img-wrap:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 28px rgba(45,31,14,.15);
+}
+@media(min-width:768px){.map-img-wrap{min-height:340px;}}
+@media(min-width:1024px){.map-img-wrap{min-height:380px;}}
 
-.map-frame{
+.map-img{
   width:100%;height:100%;
+  object-fit:cover;display:block;
   position:absolute;inset:0;
-  border:none;display:block;
 }
-.map-fallback{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:10px;padding:40px 20px;text-align:center;
-  position:absolute;inset:0;z-index:1;
-  background:var(--ivory);
-  transition:opacity .3s;
+.map-img-ph{
+  display:none;
+  position:absolute;inset:0;
+  flex-direction:column;align-items:center;justify-content:center;
+  background:var(--ivory);text-align:center;padding:20px;
 }
-.map-fallback.hidden{opacity:0;pointer-events:none;}
-.map-fallback-ico{font-size:40px;}
-.map-fallback-txt{font-size:13px;color:var(--txt3);}
-.map-fallback-btn{
-  padding:10px 20px;border-radius:10px;
-  background:var(--gr);color:#fff;text-decoration:none;
-  font-size:13px;font-weight:700;
+/* 오버레이 배지 */
+.map-img-badge{
+  position:absolute;bottom:14px;right:14px;
+  background:rgba(3,199,90,.92);
+  color:#fff;font-size:12px;font-weight:700;
+  padding:7px 14px;border-radius:20px;
+  backdrop-filter:blur(4px);
+  box-shadow:0 2px 10px rgba(0,0,0,.2);
 }
 
 /* 빈상태 */
@@ -482,21 +491,18 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
         🗺️ 카카오맵으로 길찾기
       </a>
     </div>
-    <div class="map-frame-wrap">
-      <iframe
-        class="map-frame"
-        src="https://map.naver.com/v5/embed?type=address&query=경기%20남양주시%20별내면%20광전리%20269-2&title=광진농원&zoom=15"
-        frameborder="0"
-        allowfullscreen
-        loading="lazy"
-        title="광진농원 위치">
-      </iframe>
-      <div class="map-fallback" id="mapFallback">
-        <div class="map-fallback-ico">🗺️</div>
-        <div class="map-fallback-txt">지도를 불러오는 중...</div>
-        <a href="https://map.naver.com/v5/search/경기%20남양주시%20별내면%20광전리%20269-2" target="_blank" class="map-fallback-btn">네이버 지도에서 보기</a>
+    <a class="map-img-wrap" href="https://map.naver.com/v5/search/경기%20남양주시%20별내면%20광전리%20269-2" target="_blank">
+      <img class="map-img" id="mapImg"
+        src="https://drive.google.com/uc?export=view&id=1miwoeGXSaBahsxTEu-yIrZoQG0tZu8Nd"
+        alt="광진농원 사진"
+        onerror="this.style.display='none';document.getElementById('mapImgPh').style.display='flex';">
+      <div class="map-img-ph" id="mapImgPh">
+        <div style="font-size:40px;margin-bottom:10px;">🍐</div>
+        <div style="font-size:14px;font-weight:600;color:#5A4030;">농원 사진을 등록해 주세요</div>
+        <div style="font-size:12px;color:#9A8070;margin-top:4px;">관리자 페이지 → 찾아오는 길 이미지 변경</div>
       </div>
-    </div>
+      <div class="map-img-badge">🗺️ 네이버 지도로 보기 →</div>
+    </a>
   </div>
 
   <footer class="footer">
@@ -518,6 +524,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
   <button class="btn-edit" onclick="openEditor('product')">+ 상품</button>
   <button class="btn-edit" onclick="openEditor('notice')">+ 공지</button>
   <button class="btn-edit" onclick="openEditor('popup')">팝업</button>
+  <button class="btn-edit" onclick="openEditor('location')">📍 사진</button>
   <button class="btn-edit" style="background:rgba(220,50,50,.2);" onclick="adminLogout()">로그아웃</button>
 </div>
 
@@ -597,7 +604,8 @@ function defData(){return{
     {type:'notice',title:'2024년 햇배 입고 안내',text:'안녕하세요, 광진농원입니다.\n올해 신선한 햇배가 입고되었습니다.\n택배 주문은 홈페이지 주문서를 이용해 주세요.',imgUrl:'',date:'2024-09-01'},
     {type:'event',title:'추석 선물세트 특별 할인',text:'추석을 맞아 선물세트를 특별 할인 판매합니다.',imgUrl:'',date:'2024-08-20'}
   ],
-  popup:{show:true,title:'남양주 먹골배 입고!',desc:'신선한 먹골배가 입고됐습니다. 지금 바로 주문해 보세요!',imgUrl:''}
+  popup:{show:true,title:'남양주 먹골배 입고!',desc:'신선한 먹골배가 입고됐습니다. 지금 바로 주문해 보세요!',imgUrl:''},
+  locationImg:'https://drive.google.com/uc?export=view&id=1miwoeGXSaBahsxTEu-yIrZoQG0tZu8Nd'
 };}
 
 var DB=loadData();
@@ -783,7 +791,7 @@ document.getElementById('lgPw').onkeydown=function(e){if(e.key==='Enter')doLogin
 /* 에디터 */
 function openEditor(mode,idx){
   edMode=mode;edIdx=idx===undefined?-1:idx;
-  var titles={banner:'배너 설정',product:'상품 등록/수정',notice:'공지사항 작성',popup:'팝업 배너 설정'};
+  var titles={banner:'배너 설정',product:'상품 등록/수정',notice:'공지사항 작성',popup:'팝업 배너 설정',location:'찾아오시는 길 이미지'};
   document.getElementById('edTitle').textContent=titles[mode];
   var body=document.getElementById('edBody');
   body.innerHTML=buildForm(mode,idx);
@@ -836,6 +844,12 @@ function buildForm(mode,idx){
   if(mode==='product')return '<div><div class="ed-lbl">상품명</div><input class="ed-inp" id="ef_name" value="'+d.name+'"></div><div><div class="ed-lbl">설명</div><textarea class="ed-ta" id="ef_desc">'+d.desc+'</textarea></div><div><div class="ed-lbl">가격</div><input class="ed-inp" id="ef_price" value="'+d.price+'" placeholder="45,000원"></div><div><div class="ed-lbl">뱃지 (BEST·신상·실속 등)</div><input class="ed-inp" id="ef_badge" value="'+d.badge+'"></div><div><div class="ed-lbl">이미지 URL</div><input class="ed-inp ed-img-url" id="ef_imgUrl" value="'+(d.imgUrl||'')+'" placeholder="https://..."><img class="ed-imgprev"></div><div style="display:flex;justify-content:flex-end;">'+del+'</div>';
   if(mode==='notice')return '<div><div class="ed-lbl">유형</div><select class="ed-sel" id="ef_type"><option value="notice"'+(d.type==='notice'?' selected':'')+'>공지</option><option value="event"'+(d.type==='event'?' selected':'')+'>이벤트</option><option value="info"'+(d.type==='info'?' selected':'')+'>안내</option></select></div><div><div class="ed-lbl">제목</div><input class="ed-inp" id="ef_title" value="'+d.title+'"></div><div><div class="ed-lbl">내용</div><textarea class="ed-ta" id="ef_text">'+d.text+'</textarea></div><div><div class="ed-lbl">날짜</div><input class="ed-inp" id="ef_date" type="date" value="'+d.date+'"></div><div><div class="ed-lbl">이미지 URL</div><input class="ed-inp ed-img-url" id="ef_imgUrl" value="'+(d.imgUrl||'')+'" placeholder="https://..."><img class="ed-imgprev"></div><div style="display:flex;justify-content:flex-end;">'+del+'</div>';
   if(mode==='popup')return '<div><div class="ed-lbl">팝업 표시</div><select class="ed-sel" id="ef_show"><option value="1"'+(d.show?' selected':'')+'>표시</option><option value="0"'+(!d.show?' selected':'')+'>숨김</option></select></div><div><div class="ed-lbl">제목</div><input class="ed-inp" id="ef_title" value="'+d.title+'"></div><div><div class="ed-lbl">내용</div><textarea class="ed-ta" id="ef_desc">'+d.desc+'</textarea></div><div><div class="ed-lbl">이미지 URL</div><input class="ed-inp ed-img-url" id="ef_imgUrl" value="'+(d.imgUrl||'')+'" placeholder="https://..."><img class="ed-imgprev"></div>';
+  if(mode==='location'){
+    return '<div><div class="ed-lbl">농원 사진 URL</div>'
+      +'<input class="ed-inp ed-img-url" id="ef_imgUrl" value="'+(DB.locationImg||'')+'" placeholder="https://drive.google.com/uc?export=view&id=...">'
+      +'<img class="ed-imgprev">'
+      +'<div style="font-size:11px;color:#9A8070;margin-top:4px;">구글 드라이브 이미지 링크 또는 외부 이미지 URL을 입력하세요.</div></div>';
+  }
 }
 function g(id){var el=document.getElementById(id);return el?el.value:'';}
 function saveED(){
@@ -851,6 +865,7 @@ function saveED(){
   if(edMode==='product'){var it={name:g('ef_name'),desc:g('ef_desc'),price:g('ef_price'),badge:g('ef_badge'),imgUrl:g('ef_imgUrl')};if(edIdx>=0)DB.products[edIdx]=it;else DB.products.push(it);saveData(DB);closeED();renderProducts();showToast('상품 저장!');}
   if(edMode==='notice'){var it={type:g('ef_type'),title:g('ef_title'),text:g('ef_text'),date:g('ef_date'),imgUrl:g('ef_imgUrl')};if(edIdx>=0)DB.notices[edIdx]=it;else DB.notices.unshift(it);saveData(DB);closeED();renderNotices();showToast('공지 저장!');}
   if(edMode==='popup'){DB.popup={show:g('ef_show')==='1',title:g('ef_title'),desc:g('ef_desc'),imgUrl:g('ef_imgUrl')};saveData(DB);closeED();showToast('팝업 저장!');}
+  if(edMode==='location'){DB.locationImg=g('ef_imgUrl');saveData(DB);closeED();renderLocation();showToast('사진 저장!');}
 }
 function deleteItem(){
   if(!confirm('삭제할까요?'))return;
@@ -883,9 +898,23 @@ function convertVideoUrl(url){
 }
 function switchMType(t){var iw=document.getElementById('ef_image_wrap'),vw=document.getElementById('ef_video_wrap'),ib=document.getElementById('mtype_img'),vb=document.getElementById('mtype_vid');if(!iw)return;iw.style.display=t==='image'?'block':'none';vw.style.display=t==='video'?'block':'none';if(ib){ib.style.background=t==='image'?'#3B5A28':'#fff';ib.style.color=t==='image'?'#fff':'#5A4030';}if(vb){vb.style.background=t==='video'?'#3B5A28':'#fff';vb.style.color=t==='video'?'#fff':'#5A4030';}}
 function goOrder(){window.open('https://santar7021-ux.github.io/gwangjin/','_blank');}
+function renderLocation(){
+  var img=document.getElementById('mapImg');
+  var ph=document.getElementById('mapImgPh');
+  if(!img||!ph) return;
+  var src=DB.locationImg||'';
+  if(src){
+    img.src=src;
+    img.style.display='block';
+    ph.style.display='none';
+  }else{
+    img.style.display='none';
+    ph.style.display='flex';
+  }
+}
 function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 
-renderBanners();renderProducts();renderNotices();initPopup();
+renderBanners();renderProducts();renderNotices();initPopup();renderLocation();
 
 /* 지도 iframe 로딩 감지 */
 (function(){

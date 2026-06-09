@@ -464,9 +464,9 @@ function loadData(){try{var r=localStorage.getItem(STORE_KEY);if(r)return JSON.p
 function saveData(d){try{localStorage.setItem(STORE_KEY,JSON.stringify(d));}catch(e){}}
 function defData(){return{
   banners:[
-    {title:'남양주 먹골배\n광진농원',sub:'산지 직배송으로 만나는 신선한 먹골배',imgUrl:'https://drive.google.com/uc?export=view&id=1GlvS__fNWBPQaLOCr3wPmL5NVwAZAolM',bg:'#2D1F0E'},
-    {title:'올해 햇배 입고!',sub:'신선한 신고배 · 황금배 지금 주문하세요',imgUrl:'https://drive.google.com/uc?export=view&id=1saLBL0NLE9nPlM6SZXvwCWAR7-hKYDpC',bg:'#3B2A1A'},
-    {title:'택배 주문 안내',sub:'전국 택배 배송 · 1박스 4,000원',imgUrl:'',bg:'#4A3828'}
+    {title:'남양주 먹골배\n광진농원',sub:'산지 직배송으로 만나는 신선한 먹골배',imgUrl:'https://drive.google.com/uc?export=view&id=1GlvS__fNWBPQaLOCr3wPmL5NVwAZAolM',videoUrl:'',videoType:'',bg:'#2D1F0E'},
+    {title:'올해 햇배 입고!',sub:'신선한 신고배 · 황금배 지금 주문하세요',imgUrl:'https://drive.google.com/uc?export=view&id=1saLBL0NLE9nPlM6SZXvwCWAR7-hKYDpC',videoUrl:'',videoType:'',bg:'#3B2A1A'},
+    {title:'택배 주문 안내',sub:'전국 택배 배송 · 1박스 4,000원',imgUrl:'',videoUrl:'',videoType:'',bg:'#4A3828'}
   ],
   products:[
     {name:'신고 10과 (3.5kg)',desc:'달콤하고 과즙이 풍부한 프리미엄 신고배입니다. 산지 직배송으로 신선함을 그대로 전달해 드립니다.',price:'45,000원',badge:'BEST',imgUrl:'https://drive.google.com/uc?export=view&id=1miwoeGXSaBahsxTEu-yIrZoQG0tZu8Nd'},
@@ -493,14 +493,36 @@ function renderBanners(){
   }
   DB.banners.forEach(function(b,i){
     var s=document.createElement('div');
-    s.style.cssText='min-width:100%;height:100%;position:relative;flex-shrink:0;';
-    if(b.imgUrl){
-      s.innerHTML='<img src="'+b.imgUrl+'" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display=\'none\'">'
-        +'<div class="banner-ov"><div class="banner-title">'+b.title.replace(/\n/g,'<br>')+'</div><div class="banner-sub">'+b.sub+'</div></div>';
-    }else{
-      s.innerHTML='<div style="width:100%;height:100%;background:'+b.bg+';"></div>'
-        +'<div class="banner-ov"><div class="banner-title">'+b.title.replace(/\n/g,'<br>')+'</div><div class="banner-sub">'+b.sub+'</div></div>';
+    s.style.cssText='min-width:100%;height:100%;position:relative;flex-shrink:0;overflow:hidden;';
+    var media='';
+    var ytId=b.videoUrl?getYoutubeId(b.videoUrl):'';
+    if(b.videoUrl&&ytId){
+      // 유튜브: 음소거 자동재생 반복
+      media='<iframe src="https://www.youtube.com/embed/'+ytId
+        +'?autoplay=1&mute=1&loop=1&playlist='+ytId
+        +'&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1"'
+        +' style="position:absolute;top:50%;left:50%;width:177.78%;height:100%;'
+        +'transform:translate(-50%,-50%);border:none;pointer-events:none;"'
+        +' allow="autoplay;encrypted-media" allowfullscreen></iframe>';
+    } else if(b.videoUrl&&b.videoType==='mp4'){
+      // MP4 직접 링크
+      var src=b.videoUrl;
+      var dm=src.match(/\/file\/d\/([^/]+)/);
+      if(dm) src='https://drive.google.com/uc?export=download&id='+dm[1];
+      media='<video autoplay muted loop playsinline'
+        +' style="position:absolute;top:50%;left:50%;min-width:100%;min-height:100%;'
+        +'width:auto;height:auto;transform:translate(-50%,-50%);object-fit:cover;">'
+        +'<source src="'+src+'" type="video/mp4"></video>';
+    } else if(b.imgUrl){
+      media='<img src="'+b.imgUrl+'" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display=\'none\'">';
+    } else {
+      media='<div style="width:100%;height:100%;background:'+b.bg+';"></div>';
     }
+    s.innerHTML=media
+      +'<div class="banner-ov">'
+      +'<div class="banner-title">'+b.title.replace(/\n/g,'<br>')+'</div>'
+      +'<div class="banner-sub">'+b.sub+'</div>'
+      +'</div>';
     tr.appendChild(s);
     var d=document.createElement('div');
     d.className='banner-dot'+(i===0?' act':'');
@@ -511,8 +533,8 @@ function renderBanners(){
 }
 function goBanner(n){bIdx=n;document.getElementById('bannerTrack').style.transform='translateX(-'+n*100+'%)';document.querySelectorAll('.banner-dot').forEach(function(d,i){d.classList.toggle('act',i===n);});}
 function bannerMove(dir){var n=(bIdx+dir+DB.banners.length)%DB.banners.length;goBanner(n);resetBA();}
-function startBA(){clearInterval(bTimer);if(DB.banners.length>1)bTimer=setInterval(function(){bannerMove(1);},4000);}
-function resetBA(){clearInterval(bTimer);startBA();}
+function startBA(){clearInterval(bTimer);if(DB.banners.length>1){var b=DB.banners[bIdx],d=b&&b.videoUrl?12000:5000;bTimer=setTimeout(function(){bannerMove(1);startBA();},d);}}
+function resetBA(){clearInterval(bTimer);clearTimeout(bTimer);startBA();}
 
 /* 상품 */
 function renderProducts(){
@@ -634,7 +656,7 @@ function buildForm(mode,idx){
 }
 function g(id){var el=document.getElementById(id);return el?el.value:'';}
 function saveED(){
-  if(edMode==='banner'){var it={title:g('ef_title'),sub:g('ef_sub'),imgUrl:g('ef_imgUrl'),bg:'#2D1F0E'};if(edIdx>=0)DB.banners[edIdx]=it;else DB.banners.push(it);saveData(DB);closeED();renderBanners();showToast('배너 저장!');}
+  if(edMode==='banner'){var _vw=document.getElementById('ef_video_wrap'),_useV=_vw&&_vw.style.display!=='none';var it={title:g('ef_title'),sub:g('ef_sub'),imgUrl:_useV?'':g('ef_imgUrl'),videoUrl:_useV?g('ef_videoUrl'):'',videoType:_useV?g('ef_videoType'):'',bg:'#2D1F0E'};if(edIdx>=0)DB.banners[edIdx]=it;else DB.banners.push(it);saveData(DB);closeED();renderBanners();showToast('배너 저장!');}
   if(edMode==='product'){var it={name:g('ef_name'),desc:g('ef_desc'),price:g('ef_price'),badge:g('ef_badge'),imgUrl:g('ef_imgUrl')};if(edIdx>=0)DB.products[edIdx]=it;else DB.products.push(it);saveData(DB);closeED();renderProducts();showToast('상품 저장!');}
   if(edMode==='notice'){var it={type:g('ef_type'),title:g('ef_title'),text:g('ef_text'),date:g('ef_date'),imgUrl:g('ef_imgUrl')};if(edIdx>=0)DB.notices[edIdx]=it;else DB.notices.unshift(it);saveData(DB);closeED();renderNotices();showToast('공지 저장!');}
   if(edMode==='popup'){DB.popup={show:g('ef_show')==='1',title:g('ef_title'),desc:g('ef_desc'),imgUrl:g('ef_imgUrl')};saveData(DB);closeED();showToast('팝업 저장!');}
@@ -646,6 +668,8 @@ function deleteItem(){
   if(edMode==='notice'&&edIdx>=0){DB.notices.splice(edIdx,1);saveData(DB);closeED();renderNotices();}
   showToast('삭제됐어요.');
 }
+function getYoutubeId(u){if(!u)return '';var m=u.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/)|(youtu\.be\/))([^"&?/\s]{11})/);return m?m[m.length-1]:'';}
+function switchMType(t){var iw=document.getElementById('ef_image_wrap'),vw=document.getElementById('ef_video_wrap'),ib=document.getElementById('mtype_img'),vb=document.getElementById('mtype_vid');if(!iw)return;iw.style.display=t==='image'?'block':'none';vw.style.display=t==='video'?'block':'none';if(ib){ib.style.background=t==='image'?'#3B5A28':'#fff';ib.style.color=t==='image'?'#fff':'#5A4030';}if(vb){vb.style.background=t==='video'?'#3B5A28':'#fff';vb.style.color=t==='video'?'#fff':'#5A4030';}}
 function goOrder(){window.open('https://santar7021-ux.github.io/gwangjin/','_blank');}
 function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 

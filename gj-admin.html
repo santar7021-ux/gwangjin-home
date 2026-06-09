@@ -619,11 +619,16 @@ function renderBanners(){
   document.getElementById('banner_cnt').textContent=DB.banners.length+'개';
   var h='';
   DB.banners.forEach(function(b,i){
-    var th=b.imgUrl?'<img src="'+b.imgUrl+'" onerror="this.style.display=\'none\'">':'🍐';
+    var th=b.videoUrl
+      ?'<span style="font-size:20px;">🎬</span>'
+      :(b.imgUrl?'<img src="'+b.imgUrl+'" onerror="this.style.display=\'none\'">':'🍐');
+    var typeBadge=b.videoUrl
+      ?'<span style="margin-left:6px;background:#1D4ED8;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:6px;">영상</span>'
+      :'';
     h+='<div class="ic">'
       +'<div class="ic-hd" onclick="togIC(\'b\','+i+')">'
         +'<div class="ic-hd-l"><div class="ic-thumb">'+th+'</div>'
-        +'<div><div class="ic-name">'+esc(b.title.replace(/\n/g,' '))+'</div><div class="ic-sub">'+esc(b.sub)+'</div></div></div>'
+        +'<div><div class="ic-name">'+esc(b.title.replace(/\n/g,' '))+typeBadge+'</div><div class="ic-sub">'+esc(b.sub)+'</div></div></div>'
         +'<span style="color:var(--txt3);font-size:12px;">배너'+(i+1)+' ▾</span>'
       +'</div>'
       +'<div class="ic-bd" id="b_bd_'+i+'">'+bForm(b,i)+'</div></div>';
@@ -632,15 +637,61 @@ function renderBanners(){
 }
 function bForm(b,i){
   var pfx='bi'+i;
+  var mt=b.videoUrl?'video':'image';
+  var imgOn=mt==='image';
   return '<label class="lbl">배너 제목</label><textarea class="ta" id="b_t_'+i+'" style="min-height:55px;">'+esc(b.title)+'</textarea>'
     +'<label class="lbl">부제목</label><input class="inp" id="b_s_'+i+'" value="'+esc(b.sub)+'">'
-    +'<label class="lbl">배너 이미지</label>'
-    +imgWidget(pfx, b.imgUrl||'', 'imgbox-banner', '<strong>권장: 1200 × 525px</strong> (16:7) · JPG/PNG · 2MB 이하')
+    +'<label class="lbl" style="margin-bottom:8px;">미디어 유형</label>'
+    +'<div style="display:flex;gap:8px;margin-bottom:14px;">'
+      +'<button type="button" id="bmtype_img_'+i+'" onclick="bnSwitchType('+i+',\'image\')"'
+      +' style="flex:1;padding:9px;border:1.5px solid var(--bd);border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;'
+      +'background:'+(imgOn?'var(--gr)':'#fff')+';color:'+(imgOn?'#fff':'var(--txt2)')+';">🖼️ 이미지</button>'
+      +'<button type="button" id="bmtype_vid_'+i+'" onclick="bnSwitchType('+i+',\'video\')"'
+      +' style="flex:1;padding:9px;border:1.5px solid var(--bd);border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;'
+      +'background:'+(!imgOn?'var(--gr)':'#fff')+';color:'+(!imgOn?'#fff':'var(--txt2)')+';">🎬 영상</button>'
+    +'</div>'
+    +'<div id="bmedia_img_'+i+'" style="display:'+(imgOn?'block':'none')+'">'
+      +'<label class="lbl">이미지 (파일 업로드 or URL)</label>'
+      +imgWidget(pfx, b.imgUrl||'', 'imgbox-banner', '<strong>권장: 1200 × 525px</strong> (16:7) · JPG/PNG · 2MB 이하')
+    +'</div>'
+    +'<div id="bmedia_vid_'+i+'" style="display:'+(!imgOn?'block':'none')+'">'
+      +'<label class="lbl">영상 URL</label>'
+      +'<input class="inp" id="b_vurl_'+i+'" value="'+esc(b.videoUrl||'')+'" placeholder="유튜브: https://youtube.com/watch?v=xxx  또는  MP4 직접 링크">'
+      +'<div class="hint">유튜브 주소 또는 MP4 직접 링크를 입력하세요.</div>'
+      +'<label class="lbl">영상 유형</label>'
+      +'<select class="sel" id="b_vtype_'+i+'">'
+        +'<option value="youtube"'+((!b.videoType||b.videoType==='youtube')?' selected':'')+'>🎬 유튜브 (YouTube)</option>'
+        +'<option value="mp4"'+(b.videoType==='mp4'?' selected':'')+'>📁 MP4 파일 직접 링크</option>'
+      +'</select>'
+      +'<div class="size-tip">📌 <strong>유튜브</strong>: 자동재생·음소거·반복 재생됩니다.<br>📌 <strong>MP4</strong>: 구글 드라이브 공유링크 또는 직접 URL을 입력하세요.</div>'
+    +'</div>'
     +'<div class="btn-row"><button class="btn-save" onclick="saveBanner('+i+')">💾 저장</button><button class="btn-del" onclick="delBanner('+i+')">🗑 삭제</button></div>';
+}
+function bnSwitchType(i,t){
+  var iw=document.getElementById('bmedia_img_'+i);
+  var vw=document.getElementById('bmedia_vid_'+i);
+  var ib=document.getElementById('bmtype_img_'+i);
+  var vb=document.getElementById('bmtype_vid_'+i);
+  if(!iw)return;
+  iw.style.display=t==='image'?'block':'none';
+  vw.style.display=t==='video'?'block':'none';
+  if(ib){ib.style.background=t==='image'?'var(--gr)':'#fff';ib.style.color=t==='image'?'#fff':'var(--txt2)';}
+  if(vb){vb.style.background=t==='video'?'var(--gr)':'#fff';vb.style.color=t==='video'?'#fff':'var(--txt2)';}
 }
 function saveBanner(i){
   var pfx='bi'+i;
-  DB.banners[i]={title:document.getElementById('b_t_'+i).value,sub:document.getElementById('b_s_'+i).value,imgUrl:getImgVal(pfx),bg:DB.banners[i].bg||'#2D1F0E'};
+  var vw=document.getElementById('bmedia_vid_'+i);
+  var useV=vw&&vw.style.display!=='none';
+  var vurl=document.getElementById('b_vurl_'+i);
+  var vtype=document.getElementById('b_vtype_'+i);
+  DB.banners[i]={
+    title:document.getElementById('b_t_'+i).value,
+    sub:document.getElementById('b_s_'+i).value,
+    imgUrl:useV?'':getImgVal(pfx),
+    videoUrl:useV&&vurl?vurl.value:'',
+    videoType:useV&&vtype?vtype.value:'',
+    bg:DB.banners[i].bg||'#2D1F0E'
+  };
   saveDB();renderBanners();renderStats();toast('✅ 배너 저장!');
 }
 function delBanner(i){if(!confirm('배너를 삭제할까요?'))return;DB.banners.splice(i,1);saveDB();renderBanners();renderStats();toast('🗑 삭제됐습니다.');}

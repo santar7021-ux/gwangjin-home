@@ -397,11 +397,66 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
 </template>
 
 <script>
-var STORE_KEY='gwangjin_home_v1';
+var API_URL='https://script.google.com/macros/s/AKfycbxL8FnYDV_r3pk7jGw3RE-XCmTOVUeF8BuMFImvvBnnZ1wokFdxdXGfT9xqYBdIxZdPLQ/exec'; // ← 배포 후 URL 입력
+var CACHE_KEY='gwangjin_cache_v2';
 var DB=null;
 
-function loadDB(){try{var r=localStorage.getItem(STORE_KEY);if(r)return JSON.parse(r);}catch(e){}return defDB();}
-function saveDB(){try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){}}
+function loadDB(callback){
+  var def=defDB();
+  // 1. 캐시 먼저
+  var cached=null;
+  try{var c=localStorage.getItem(CACHE_KEY);if(c)cached=JSON.parse(c);}catch(e){}
+  var initial=cached||def;
+  callback(initial);
+
+  // 2. Sheets에서 최신 fetch
+  if(!API_URL||API_URL==='YOUR_APPS_SCRIPT_URL'){return;}
+  fetch(API_URL+'?t='+Date.now())
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!data.ok) return;
+      var merged={
+        banners: data.banners&&data.banners.length?data.banners:def.banners,
+        products: data.products&&data.products.length?data.products:def.products,
+        notices: data.notices&&data.notices.length?data.notices:def.notices,
+        popup: data.popup||def.popup,
+        locationImg: data.locationImg||def.locationImg
+      };
+      try{localStorage.setItem(CACHE_KEY,JSON.stringify(merged));}catch(e){}
+      DB=merged;
+      initAll();
+      toast('✅ 최신 데이터 로드 완료');
+    })
+    .catch(function(){toast('⚠️ 오프라인 - 캐시 데이터 사용 중');});
+}
+
+function saveDB(){
+  // 캐시 저장
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify(DB));}catch(e){}
+  // Sheets 저장
+  if(!API_URL||API_URL==='YOUR_APPS_SCRIPT_URL'){
+    toast('⚠️ API URL 미설정 - 로컬 저장만 됨');
+    return;
+  }
+  var saves=[
+    {type:'banners', rows:DB.banners},
+    {type:'products', rows:DB.products},
+    {type:'notices', rows:DB.notices},
+    {type:'settings', settings:{
+      popup_show:String(DB.popup.show),
+      popup_title:DB.popup.title||'',
+      popup_desc:DB.popup.desc||'',
+      popup_img:DB.popup.imgUrl||'',
+      location_img:DB.locationImg||''
+    }}
+  ];
+  var done=0;
+  saves.forEach(function(body){
+    fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+      .then(function(){done++;if(done===saves.length)toast('✅ 구글 시트에 저장 완료!');})
+      .catch(function(){toast('❌ 저장 실패 - 네트워크 확인');});
+  });
+}
 function defDB(){return{
   banners:[
     {title:'남양주 먹골배\n광진농원',sub:'산지 직배송으로 만나는 신선한 먹골배',imgUrl:'https://drive.google.com/uc?export=view&id=1GlvS__fNWBPQaLOCr3wPmL5NVwAZAolM',bg:'#2D1F0E'},
@@ -417,7 +472,8 @@ function defDB(){return{
     {type:'notice',title:'2024년 햇배 입고 안내',text:'안녕하세요, 광진농원입니다.\n올해 신선한 햇배가 입고되었습니다.',imgUrl:'',date:'2024-09-01'},
     {type:'event',title:'추석 선물세트 특별 할인',text:'추석을 맞아 선물세트를 특별 할인 판매합니다.',imgUrl:'',date:'2024-08-20'}
   ],
-  popup:{show:true,title:'남양주 먹골배 입고!',desc:'신선한 먹골배가 입고됐습니다. 지금 바로 주문해 보세요!',imgUrl:''}
+  popup:{show:true,title:'남양주 먹골배 입고!',desc:'신선한 먹골배가 입고됐습니다. 지금 바로 주문해 보세요!',imgUrl:''},
+    locationImg:'https://drive.google.com/uc?export=view&id=1ypQACPcUALdqMM5uBCjBwSQ4Ad6wvKp1'
 };}
 
 /* ══ 로그인 ══ */
@@ -425,14 +481,13 @@ document.getElementById('loginBtn').onclick=function(){
   var id=document.getElementById('lgId').value.trim();
   var pw=document.getElementById('lgPw').value.trim();
   if(id==='gwangjin'&&pw==='105709'){
-    DB=loadDB();
     document.getElementById('wLogin').style.display='none';
     var wa=document.getElementById('wAdmin');
     wa.classList.add('show');
     document.body.style.background='#F4F1EC';
     document.body.style.alignItems='stretch';
     document.body.style.justifyContent='flex-start';
-    initAll();
+    loadDB(function(data){DB=data;initAll();});
   }else{
     document.getElementById('lgErr').style.display='block';
   }

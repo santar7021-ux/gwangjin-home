@@ -342,22 +342,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
 
 <div class="toast" id="toast"></div>
 
-<!-- 이미지 위젯 템플릿 (URL 전용) -->
-<template id="tpl-imgwidget">
-  <div class="img-upload-wrap">
-    <div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:10px 13px;font-size:12px;color:#92400E;line-height:1.8;margin-bottom:8px;">
-      📌 <strong>구글 드라이브 사용법</strong><br>
-      파일 우클릭 → 공유 → "링크가 있는 모든 사용자" → 링크 복사 후 붙여넣기
-    </div>
-    <input class="inp iw-url-inp" placeholder="https://drive.google.com/file/d/파일ID/view 또는 직접 이미지 URL" style="margin-bottom:0;">
-    <div class="size-tip iw-size" style="margin-top:8px;"></div>
-    <div class="imgbox iw-imgbox">
-      <div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 미리보기</div></div>
-    </div>
-    <input type="hidden" class="iw-hidden">
-    <button type="button" class="img-clear iw-clear" style="display:none;">✕</button>
-  </div>
-</template>
+
 
 <script>
 var API_URL='https://script.google.com/macros/s/AKfycbxL8FnYDV_r3pk7jGw3RE-XCmTOVUeF8BuMFImvvBnnZ1wokFdxdXGfT9xqYBdIxZdPLQ/exec'; // ← 배포 후 URL 입력
@@ -503,7 +488,7 @@ function goTab(t){
   document.getElementById('sbDim').classList.remove('show');
 }
 
-var currentPanel='popup';
+
 
 
 
@@ -538,32 +523,31 @@ function clearImg(prefix){
   if(prefix==='pp') prevPopup();
 }
 
-/* 동적 이미지 위젯 HTML 생성 - 템플릿 엘리먼트 방식 */
+/* ── 이미지 URL 위젯 (심플) ── */
 function imgWidget(prefix, currentVal, boxClass, sizeText){
-  var tpl = document.getElementById('tpl-imgwidget');
-  var div = document.createElement('div');
-  div.innerHTML = tpl.innerHTML;
-  div.querySelector('.img-upload-wrap').id = prefix+'_img_wrap_dyn';
-  div.querySelector('.iw-file-panel').id = prefix+'_panel_file_dyn';
-  div.querySelector('.iw-url-panel').id = prefix+'_panel_url_dyn';
-  div.querySelector('.iw-url-inp').id = prefix+'_url_inp';
-  div.querySelector('.iw-imgbox').id = prefix+'_imgbox';
-  div.querySelector('.iw-imgbox').className = 'imgbox '+boxClass+' iw-imgbox';
-  div.querySelector('.iw-hidden').id = prefix+'_img_val';
-  div.querySelector('.iw-size').innerHTML = '📐 '+sizeText;
-  // 이벤트 바인딩
-  div.querySelector('.iw-tab-file').setAttribute('data-prefix', prefix);
-  div.querySelector('.iw-tab-url').setAttribute('data-prefix', prefix);
-  div.querySelector('.iw-file-input').setAttribute('data-prefix', prefix);
-  div.querySelector('.iw-url-inp').setAttribute('data-prefix', prefix);
-  div.querySelector('.iw-clear').setAttribute('data-prefix', prefix);
-  // 초기값 설정
-  if(currentVal){
-    div.querySelector('.iw-hidden').value = currentVal;
-    div.querySelector('.iw-url-inp').value = currentVal;
-    div.querySelector('.iw-imgbox').innerHTML = '<img src="'+currentVal+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div class=imgbox-ph><div class=imgbox-ph-ico>❌</div><div class=imgbox-ph-txt>이미지 오류</div></div>\'"><button class="img-clear" data-prefix="'+prefix+'">✕</button>';
-  }
-  return div.innerHTML;
+  var imgHtml=currentVal
+    ?'<img src="'+esc(currentVal)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div class=imgbox-ph><div class=imgbox-ph-ico>❌</div><div class=imgbox-ph-txt>이미지를 불러올 수 없어요</div></div>\'">'
+    :'<div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 미리보기</div></div>';
+  return '<input class="inp" id="'+prefix+'_img_val" value="'+esc(currentVal||'')+'"'
+    +' placeholder="https://drive.google.com/uc?export=view&id=..."'
+    +' oninput="previewImg(\''+prefix+'\')" style="margin-bottom:6px;">'
+    +'<div style="font-size:11px;color:var(--txt3);margin-bottom:10px;">'
+    +'구글 드라이브: 파일 우클릭 → 공유 → "링크가 있는 모든 사용자" → 링크 복사 후 붙여넣기</div>'
+    +'<div class="size-tip">📐 '+sizeText+'</div>'
+    +'<div class="imgbox '+boxClass+'" id="'+prefix+'_imgbox">'+imgHtml+'</div>';
+}
+function previewImg(prefix){
+  var url=document.getElementById(prefix+'_img_val');
+  var box=document.getElementById(prefix+'_imgbox');
+  if(!url||!box)return;
+  var v=url.value.trim();
+  box.innerHTML=v
+    ?'<img src="'+v+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div class=imgbox-ph><div class=imgbox-ph-ico>❌</div><div class=imgbox-ph-txt>이미지를 불러올 수 없어요</div></div>\'">'
+    :'<div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 미리보기</div></div>';
+}
+function getImgVal(prefix){
+  var el=document.getElementById(prefix+'_img_val');
+  return el?el.value.trim():'';
 }
 
 
@@ -783,24 +767,7 @@ function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 
 /* ══ 이벤트 위임 - 동적 생성 요소 처리 ══ */
-document.addEventListener('click', function(e){
-  var target = e.target;
-  // 파일탭
-  if(target.classList.contains('iw-tab-file')){
-    var pfx=target.getAttribute('data-prefix');
-    if(pfx) switchTabDyn(pfx,'file');
-  }
-  // URL탭
-  if(target.classList.contains('iw-tab-url')){
-    var pfx=target.getAttribute('data-prefix');
-    if(pfx) switchTabDyn(pfx,'url');
-  }
-  // 이미지 삭제
-  if(target.classList.contains('img-clear')){
-    var pfx=target.getAttribute('data-prefix');
-    if(pfx) clearImg(pfx);
-  }
-});
+/* 이벤트 위임 정리됨 */
 
 document.addEventListener('input', function(e){
   var target=e.target;

@@ -608,15 +608,13 @@ function imgWidget(prefix, currentVal, boxClass, sizeText){
 }
 function driveUrl(url){
   if(!url) return '';
-  // https://drive.google.com/file/d/ID/view → thumbnail
+  var id='';
   var m1=url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
-  if(m1) return 'https://drive.google.com/thumbnail?id='+m1[1]+'&sz=w1200';
-  // https://drive.google.com/open?id=ID
-  var m2=url.match(/drive\.google\.com\/open\?id=([^&]+)/);
-  if(m2) return 'https://drive.google.com/thumbnail?id='+m2[1]+'&sz=w1200';
-  // https://drive.google.com/uc?id=ID or export=view&id=ID
-  var m3=url.match(/[?&]id=([^&]+)/);
-  if(m3&&url.indexOf('drive.google.com')>-1) return 'https://drive.google.com/thumbnail?id='+m3[1]+'&sz=w1200';
+  if(m1) id=m1[1];
+  if(!id){var m2=url.match(/drive\.google\.com\/open\?id=([^&]+)/);if(m2)id=m2[1];}
+  if(!id){var m3=url.match(/[?&]id=([^&]+)/);if(m3&&url.indexOf('drive.google.com')>-1)id=m3[1];}
+  if(!id){var m4=url.match(/thumbnail\?id=([^&]+)/);if(m4)id=m4[1];}
+  if(id) return 'https://lh3.googleusercontent.com/d/'+id+'=w1200';
   return url;
 }
 function previewImg(prefix){
@@ -635,6 +633,17 @@ function getImgVal(prefix){
 }
 
 
+
+/* ══ 순서 이동 ══ */
+function moveItem(type,i,dir){
+  var arr=type==='b'?DB.banners:DB.products;
+  var j=i+dir;
+  if(j<0||j>=arr.length)return;
+  var tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;
+  saveDB();
+  if(type==='b'){renderBanners();renderStats();toast('↕ 배너 순서 변경!');}
+  else{renderProducts();renderStats();toast('↕ 상품 순서 변경!');}
+}
 
 /* ══ 초기화 ══ */
 function initAll(){renderStats();loadPopupForm();renderBanners();renderProducts();renderNotices();loadSoundForm();}
@@ -689,10 +698,21 @@ function renderBanners(){
       ?'<span style="margin-left:6px;background:#1D4ED8;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:6px;">영상</span>'
       :'';
     h+='<div class="ic">'
-      +'<div class="ic-hd" onclick="togIC(\'b\','+i+')">'
-        +'<div class="ic-hd-l"><div class="ic-thumb">'+th+'</div>'
-        +'<div><div class="ic-name">'+esc(b.title.replace(/\n/g,' '))+typeBadge+'</div><div class="ic-sub">'+esc(b.sub)+'</div></div></div>'
-        +'<span style="color:var(--txt3);font-size:12px;">배너'+(i+1)+' ▾</span>'
+      +'<div class="ic-hd" style="gap:6px;">'
+        +'<div class="ic-hd-l" onclick="togIC(\'b\','+i+')" style="flex:1;cursor:pointer;min-width:0;">'
+          +'<div class="ic-thumb">'+th+'</div>'
+          +'<div><div class="ic-name">'+esc(b.title.replace(/\n/g,' '))+typeBadge+'</div>'
+          +'<div class="ic-sub">'+esc(b.sub)+'</div></div>'
+        +'</div>'
+        +'<div style="display:flex;gap:3px;align-items:center;flex-shrink:0;">'
+          +'<button type="button" title="위로" onclick="event.stopPropagation();moveItem(\'b\','+i+',-1)"'
+            +(i===0?' disabled':'')
+            +' style="border:1px solid var(--bd);background:#fff;border-radius:7px;width:28px;height:28px;font-size:13px;cursor:pointer;'+(i===0?'opacity:.3;':'')+'">↑</button>'
+          +'<button type="button" title="아래로" onclick="event.stopPropagation();moveItem(\'b\','+i+',1)"'
+            +(i===DB.banners.length-1?' disabled':'')
+            +' style="border:1px solid var(--bd);background:#fff;border-radius:7px;width:28px;height:28px;font-size:13px;cursor:pointer;'+(i===DB.banners.length-1?'opacity:.3;':'')+'">↓</button>'
+          +'<span onclick="togIC(\'b\','+i+')" style="color:var(--txt3);font-size:12px;padding:0 4px;cursor:pointer;">▾</span>'
+        +'</div>'
       +'</div>'
       +'<div class="ic-bd" id="b_bd_'+i+'">'+bForm(b,i)+'</div></div>';
   });
@@ -783,10 +803,21 @@ function renderProducts(){
     var th=p.imgUrl?'<img src="'+p.imgUrl+'" onerror="this.style.display=\'none\'">':'🍐';
     var bj=p.badge?'<span style="margin-left:5px;background:var(--gd);color:var(--gr);padding:1px 6px;border-radius:6px;font-size:10px;font-weight:700;">'+esc(p.badge)+'</span>':'';
     h+='<div class="ic">'
-      +'<div class="ic-hd" onclick="togIC(\'p\','+i+')">'
-        +'<div class="ic-hd-l"><div class="ic-thumb">'+th+'</div>'
-        +'<div><div class="ic-name">'+esc(p.name)+bj+'</div><div class="ic-sub">'+esc(p.price)+'</div></div></div>'
-        +'<span style="color:var(--txt3);">▾</span>'
+      +'<div class="ic-hd" style="gap:6px;">'
+        +'<div class="ic-hd-l" onclick="togIC(\'p\','+i+')" style="flex:1;cursor:pointer;min-width:0;">'
+          +'<div class="ic-thumb">'+th+'</div>'
+          +'<div><div class="ic-name">'+esc(p.name)+bj+'</div>'
+          +'<div class="ic-sub">'+esc(p.price)+'</div></div>'
+        +'</div>'
+        +'<div style="display:flex;gap:3px;align-items:center;flex-shrink:0;">'
+          +'<button type="button" title="위로" onclick="event.stopPropagation();moveItem(\'p\','+i+',-1)"'
+            +(i===0?' disabled':'')
+            +' style="border:1px solid var(--bd);background:#fff;border-radius:7px;width:28px;height:28px;font-size:13px;cursor:pointer;'+(i===0?'opacity:.3;':'')+'">↑</button>'
+          +'<button type="button" title="아래로" onclick="event.stopPropagation();moveItem(\'p\','+i+',1)"'
+            +(i===DB.products.length-1?' disabled':'')
+            +' style="border:1px solid var(--bd);background:#fff;border-radius:7px;width:28px;height:28px;font-size:13px;cursor:pointer;'+(i===DB.products.length-1?'opacity:.3;':'')+'">↓</button>'
+          +'<span onclick="togIC(\'p\','+i+')" style="color:var(--txt3);padding:0 4px;cursor:pointer;">▾</span>'
+        +'</div>'
       +'</div>'
       +'<div class="ic-bd" id="p_bd_'+i+'">'+pForm(p,i)+'</div></div>';
   });

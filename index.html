@@ -557,7 +557,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
     </div>
     <a class="map-img-wrap" href="https://map.naver.com/v5/search/경기%20남양주시%20별내면%20광전리%20269-2" target="_blank">
       <img class="map-img" id="mapImg"
-        src="https://drive.google.com/thumbnail?id=1ypQACPcUALdqMM5uBCjBwSQ4Ad6wvKp1&sz=w1200"
+        src="https://lh3.googleusercontent.com/d/1ypQACPcUALdqMM5uBCjBwSQ4Ad6wvKp1=w1200"
         alt="광진농원 사진"
         onerror="this.src='https://drive.google.com/uc?export=view&id=1ypQACPcUALdqMM5uBCjBwSQ4Ad6wvKp1';this.onerror=function(){this.style.display='none';document.getElementById('mapImgPh').style.display='flex';}">
       <div class="map-img-ph" id="mapImgPh">
@@ -1018,16 +1018,14 @@ function deleteItem(){
 /* ── 구글 드라이브 링크 → img src 용 URL 변환 ── */
 function driveUrl(url){
   if(!url) return '';
-  // /file/d/ID/view 형태
+  var id='';
   var m1=url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
-  if(m1) return 'https://drive.google.com/thumbnail?id='+m1[1]+'&sz=w1200';
-  // open?id=ID 형태
-  var m2=url.match(/drive\.google\.com\/open\?id=([^&]+)/);
-  if(m2) return 'https://drive.google.com/thumbnail?id='+m2[1]+'&sz=w1200';
-  // uc?export=view&id=ID 또는 uc?id=ID 형태
-  var m3=url.match(/drive\.google\.com\/uc[^?]*\?[^#]*[?&]id=([^&]+)/);
-  if(m3) return 'https://drive.google.com/thumbnail?id='+m3[1]+'&sz=w1200';
-  // thumbnail?id=ID (이미 변환된 형태) → 그대로
+  if(m1) id=m1[1];
+  if(!id){var m2=url.match(/drive\.google\.com\/open\?id=([^&]+)/);if(m2)id=m2[1];}
+  if(!id){var m3=url.match(/[?&]id=([^&]+)/);if(m3&&url.indexOf('drive.google.com')>-1)id=m3[1];}
+  if(!id){var m4=url.match(/thumbnail\?id=([^&]+)/);if(m4)id=m4[1];}
+  // lh3 방식: 원본 비율 유지, 크롭 없음
+  if(id) return 'https://lh3.googleusercontent.com/d/'+id+'=w1200';
   return url;
 }
 

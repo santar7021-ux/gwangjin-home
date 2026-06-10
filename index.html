@@ -600,58 +600,39 @@ var isAdmin=false;
 var edMode='';
 var edIdx=-1;
 
-// ── 데이터 로딩: Sheets 우선, 실패 시 캐시, 그것도 없으면 기본값 ──
-function loadData(callback){
-  // 1. 캐시 먼저 화면에 표시 (빠른 초기 렌더)
-  var cached=null;
-  try{var c=localStorage.getItem(CACHE_KEY);if(c)cached=JSON.parse(c);}catch(e){}
-  var initial=cached||defData();
-  callback(initial);
-
-  // 2. Sheets에서 최신 데이터 fetch
-  if(!API_URL||API_URL==='YOUR_APPS_SCRIPT_URL') return;
-  fetch(API_URL+'?action=read&t='+Date.now())
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(!data.ok) return;
-      // 배너: videoUrl/videoType 없는 경우 빈값으로 채우기
-      var banners=(data.banners&&data.banners.length?data.banners:defData().banners).map(function(b){
-        return {title:b.title||'',sub:b.sub||'',imgUrl:b.imgUrl||'',videoUrl:b.videoUrl||'',videoType:b.videoType||'',bg:b.bg||'#2D1F0E'};
-      });
-      var merged={
-        banners: banners,
-        products: data.products&&data.products.length?data.products:defData().products,
-        notices: data.notices&&data.notices.length?data.notices:defData().notices,
-        popup: data.popup||defData().popup,
-        locationImg: data.locationImg||defData().locationImg
-      };
-      // 캐시 저장
-      try{localStorage.setItem(CACHE_KEY,JSON.stringify(merged));}catch(e){}
-      // 최신 데이터로 화면 갱신
-      DB=merged;
-      renderAll();
-    })
-    .catch(function(){/* 네트워크 오류 시 캐시 유지 */});
-}
-
-// ── 데이터 저장: GET 방식 (CORS 문제 없음) ──
+// ── 데이터 저장: GET 방식 ──
 function saveData(d){
   try{localStorage.setItem(CACHE_KEY,JSON.stringify(d));}catch(e){}
   if(!API_URL||API_URL==='YOUR_APPS_SCRIPT_URL') return;
   var payload={
-    banners:  d.banners,
-    products: d.products,
-    notices:  d.notices,
+    banners:d.banners, products:d.products, notices:d.notices,
     settings:{
-      popup_show:  String(d.popup.show),
-      popup_title: d.popup.title  ||'',
-      popup_desc:  d.popup.desc   ||'',
-      popup_img:   d.popup.imgUrl ||'',
-      location_img:d.locationImg  ||''
+      popup_show:String(d.popup.show), popup_title:d.popup.title||'',
+      popup_desc:d.popup.desc||'', popup_img:d.popup.imgUrl||'',
+      location_img:d.locationImg||''
     }
   };
   var url=API_URL+'?action=save&data='+encodeURIComponent(JSON.stringify(payload));
   fetch(url).catch(function(){});
+}
+
+// ── 시트 데이터 정규화 ──
+function normalizeData(data){
+  var def=defData();
+  return {
+    banners:(data.banners&&data.banners.length?data.banners:def.banners).map(function(b){
+      return {title:b.title||'',sub:b.sub||'',imgUrl:b.imgUrl||'',
+              videoUrl:b.videoUrl||'',videoType:b.videoType||'',bg:b.bg||'#2D1F0E'};
+    }),
+    products:(data.products&&data.products.length?data.products:def.products).map(function(p){
+      return {name:p.name||'',desc:p.desc||'',price:p.price||'',badge:p.badge||'',imgUrl:p.imgUrl||''};
+    }),
+    notices:(data.notices&&data.notices.length?data.notices:def.notices).map(function(n){
+      return {type:n.type||'notice',title:n.title||'',text:n.text||'',imgUrl:n.imgUrl||'',date:n.date||''};
+    }),
+    popup:data.popup||def.popup,
+    locationImg:data.locationImg||def.locationImg
+  };
 }
 function defData(){return{
   banners:[
@@ -672,7 +653,26 @@ function defData(){return{
   locationImg:'https://drive.google.com/uc?export=view&id=1ypQACPcUALdqMM5uBCjBwSQ4Ad6wvKp1'
 };}
 
-var DB=loadData();
+// ── DB 초기화: 캐시 → Sheets 순서로 로딩 ──
+var DB=(function(){
+  // 1단계: 캐시에서 즉시 로딩 (화면 빠르게 표시)
+  try{var c=localStorage.getItem(CACHE_KEY);if(c)return JSON.parse(c);}catch(e){}
+  return defData();
+})();
+
+// 3단계: 페이지 로드 후 Sheets에서 최신 데이터 가져오기
+window.addEventListener('load', function(){
+  if(!API_URL||API_URL==='YOUR_APPS_SCRIPT_URL') return;
+  fetch(API_URL+'?action=read&t='+Date.now())
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!data||!data.ok) return;
+      DB=normalizeData(data);
+      try{localStorage.setItem(CACHE_KEY,JSON.stringify(DB));}catch(e){}
+      renderAll();
+    })
+    .catch(function(e){console.log('Sheets 로딩 실패, 캐시 사용:', e);});
+});
 
 /* 배너 */
 var bIdx=0,bTimer=null;
@@ -973,23 +973,12 @@ function renderLocation(){
 function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 
 function renderAll(){
-  renderBanners();renderProducts();renderNotices();initPopup();renderLocation();
+  renderBanners();renderProducts();renderNotices();renderLocation();
 }
-loadData(function(data){DB=data;renderAll();});
 
-/* 지도 iframe 로딩 감지 */
-(function(){
-  var iframe=document.querySelector('.map-frame');
-  var fallback=document.getElementById('mapFallback');
-  if(!iframe||!fallback)return;
-  iframe.addEventListener('load',function(){
-    fallback.classList.add('hidden');
-  });
-  // 3초 후에도 안 되면 fallback 유지
-  setTimeout(function(){
-    // iframe이 로드됐으면 숨김 처리
-  },3000);
-})();
+/* ── 초기 렌더링 ── */
+renderAll();
+initPopup();
 </script>
 </body>
 </html>

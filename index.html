@@ -118,6 +118,37 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
 .banner-nav.next{right:10px;}
 @media(min-width:768px){.banner-nav.prev{left:20px;}.banner-nav.next{right:20px;}}
 
+/* ══ 배너 아래 영상 ══ */
+.hero-video-wrap{
+  position:relative;
+  width:100%;
+  background:#000;
+  overflow:hidden;
+}
+.hero-video-frame{
+  width:100%;
+  display:block;
+  border:none;
+  aspect-ratio:16/9;
+}
+@media(min-width:768px){
+  .hero-video-frame{
+    aspect-ratio:16/7;
+    max-height:520px;
+  }
+}
+.hero-video-overlay{
+  position:absolute;
+  bottom:14px;left:14px;
+  pointer-events:none;
+}
+.hero-video-badge{
+  background:rgba(45,31,14,.75);
+  color:#fff;font-size:12px;font-weight:700;
+  padding:5px 12px;border-radius:20px;
+  backdrop-filter:blur(4px);
+}
+
 /* ══ 메인 콘텐츠 ══ */
 .main{width:100%;max-width:1200px;margin:0 auto;padding:0 16px 120px;}
 @media(min-width:768px){.main{padding:0 40px 120px;}}
@@ -463,9 +494,25 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
   <div class="banner-dots" id="bannerDots"></div>
 </div>
 
+<!-- 배너 아래 자동재생 영상 -->
+<div class="hero-video-wrap">
+  <iframe
+    id="heroVideoFrame"
+    class="hero-video-frame"
+    src="https://drive.google.com/file/d/1weerQXAYqm2G_kH-cAXOQ3iQN5VsJQO4/preview"
+    allow="autoplay"
+    allowfullscreen
+    frameborder="0"
+    loading="lazy">
+  </iframe>
+  <div class="hero-video-overlay">
+    <div class="hero-video-badge">🍐 광진농원 영상</div>
+  </div>
+</div>
+
 <!-- 메인 -->
 <main class="main">
-  <div class="sec-hd"><div class="sec-title">🍐 이번 시즌 배</div></div>
+  <div class="sec-hd"><div class="sec-title">🍐 광진농원 상품</div></div>
   <div class="products" id="productList"></div>
   <div class="divider"></div>
   <div class="sec-hd"><div class="sec-title">📋 공지사항</div></div>
@@ -589,6 +636,18 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
   </div>
 </div>
 
+<!-- 배경음악 & 음성인사 -->
+<audio id="bgMusicAudio" loop style="display:none;"></audio>
+<audio id="greetingAudio" style="display:none;"></audio>
+
+<!-- 오디오 활성화 버튼 (모바일 자동재생 정책 대응) -->
+<div id="audioPrompt" style="display:none;position:fixed;bottom:80px;right:16px;z-index:700;
+  background:var(--br);color:#fff;border-radius:12px;padding:10px 14px;
+  font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);
+  display:flex;align-items:center;gap:6px;">
+  🔊 소리 켜기
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -621,36 +680,40 @@ function normalizeData(data){
   var def=defData();
   return {
     banners:(data.banners&&data.banners.length?data.banners:def.banners).map(function(b){
-      return {title:b.title||'',sub:b.sub||'',imgUrl:b.imgUrl||'',
+      return {title:b.title||'',sub:b.sub||'',imgUrl:b.imgUrl||'',imgUrlMo:b.imgUrlMo||'',
               videoUrl:b.videoUrl||'',videoType:b.videoType||'',bg:b.bg||'#2D1F0E'};
     }),
     products:(data.products&&data.products.length?data.products:def.products).map(function(p){
-      return {name:p.name||'',desc:p.desc||'',price:p.price||'',badge:p.badge||'',imgUrl:p.imgUrl||''};
+      return {name:p.name||'',desc:p.desc||'',price:p.price||'',badge:p.badge||'',imgUrl:p.imgUrl||'',imgUrlMo:p.imgUrlMo||''};
     }),
     notices:(data.notices&&data.notices.length?data.notices:def.notices).map(function(n){
       return {type:n.type||'notice',title:n.title||'',text:n.text||'',imgUrl:n.imgUrl||'',date:n.date||''};
     }),
     popup:data.popup||def.popup,
-    locationImg:data.locationImg||def.locationImg
+    locationImg:data.locationImg||def.locationImg,
+    bgMusic:data.bgMusic||def.bgMusic||'',
+    greetingVoice:data.greetingVoice||def.greetingVoice||''
   };
 }
 function defData(){return{
   banners:[
-    {title:'남양주 먹골배\n광진농원',sub:'산지 직배송으로 만나는 신선한 먹골배',imgUrl:'https://drive.google.com/uc?export=view&id=1GlvS__fNWBPQaLOCr3wPmL5NVwAZAolM',videoUrl:'',videoType:'',bg:'#2D1F0E'},
-    {title:'올해 햇배 입고!',sub:'신선한 신고배 · 황금배 지금 주문하세요',imgUrl:'https://drive.google.com/uc?export=view&id=1saLBL0NLE9nPlM6SZXvwCWAR7-hKYDpC',videoUrl:'',videoType:'',bg:'#3B2A1A'},
-    {title:'택배 주문 안내',sub:'전국 택배 배송 · 1박스 4,000원',imgUrl:'',videoUrl:'',videoType:'',bg:'#4A3828'}
+    {title:'남양주 먹골배\n광진농원',sub:'산지 직배송으로 만나는 신선한 먹골배',imgUrl:'https://drive.google.com/uc?export=view&id=1GlvS__fNWBPQaLOCr3wPmL5NVwAZAolM',imgUrlMo:'',videoUrl:'',videoType:'',bg:'#2D1F0E'},
+    {title:'올해 햇배 입고!',sub:'신선한 신고배 · 황금배 지금 주문하세요',imgUrl:'https://drive.google.com/uc?export=view&id=1saLBL0NLE9nPlM6SZXvwCWAR7-hKYDpC',imgUrlMo:'',videoUrl:'',videoType:'',bg:'#3B2A1A'},
+    {title:'택배 주문 안내',sub:'전국 택배 배송 · 1박스 4,000원',imgUrl:'',imgUrlMo:'',videoUrl:'',videoType:'',bg:'#4A3828'}
   ],
   products:[
-    {name:'신고 10과 (3.5kg)',desc:'달콤하고 과즙이 풍부한 프리미엄 신고배입니다. 산지 직배송으로 신선함을 그대로 전달해 드립니다.',price:'45,000원',badge:'BEST',imgUrl:'https://drive.google.com/uc?export=view&id=1miwoeGXSaBahsxTEu-yIrZoQG0tZu8Nd'},
-    {name:'신고 13과 (3.5kg)',desc:'알이 굵고 단단한 신고배 13과입니다. 선물용으로 인기가 많은 상품입니다.',price:'34,000원',badge:'',imgUrl:''},
-    {name:'신고 15과 (3.5kg)',desc:'실속형 소과 신고배입니다. 합리적인 가격으로 먹골배의 맛을 즐겨보세요.',price:'30,000원',badge:'실속',imgUrl:''}
+    {name:'신고 10과 (3.5kg)',desc:'달콤하고 과즙이 풍부한 프리미엄 신고배입니다. 산지 직배송으로 신선함을 그대로 전달해 드립니다.',price:'45,000원',badge:'BEST',imgUrl:'https://drive.google.com/uc?export=view&id=1miwoeGXSaBahsxTEu-yIrZoQG0tZu8Nd',imgUrlMo:''},
+    {name:'신고 13과 (3.5kg)',desc:'알이 굵고 단단한 신고배 13과입니다. 선물용으로 인기가 많은 상품입니다.',price:'34,000원',badge:'',imgUrl:'',imgUrlMo:''},
+    {name:'신고 15과 (3.5kg)',desc:'실속형 소과 신고배입니다. 합리적인 가격으로 먹골배의 맛을 즐겨보세요.',price:'30,000원',badge:'실속',imgUrl:'',imgUrlMo:''}
   ],
   notices:[
     {type:'notice',title:'2024년 햇배 입고 안내',text:'안녕하세요, 광진농원입니다.\n올해 신선한 햇배가 입고되었습니다.\n택배 주문은 홈페이지 주문서를 이용해 주세요.',imgUrl:'',date:'2024-09-01'},
     {type:'event',title:'추석 선물세트 특별 할인',text:'추석을 맞아 선물세트를 특별 할인 판매합니다.',imgUrl:'',date:'2024-08-20'}
   ],
   popup:{show:true,title:'남양주 먹골배 입고!',desc:'신선한 먹골배가 입고됐습니다. 지금 바로 주문해 보세요!',imgUrl:''},
-  locationImg:'https://drive.google.com/uc?export=view&id=1ypQACPcUALdqMM5uBCjBwSQ4Ad6wvKp1'
+  locationImg:'https://drive.google.com/uc?export=view&id=1ypQACPcUALdqMM5uBCjBwSQ4Ad6wvKp1',
+  bgMusic:'',
+  greetingVoice:''
 };}
 
 // ── DB 초기화: 캐시 → Sheets 순서로 로딩 ──
@@ -705,33 +768,34 @@ function renderBanners(){
       s.appendChild(iframe);
 
     } else if(b.videoUrl&&b.videoType==='mp4'){
-      // ── MP4: 구글 드라이브 링크 자동 변환 + 안정적 재생 ──
-      var src=convertVideoUrl(b.videoUrl);
-      var vid=document.createElement('video');
-      vid.autoplay=true;
-      vid.muted=true;
-      vid.loop=true;
-      vid.setAttribute('playsinline','');
-      vid.setAttribute('webkit-playsinline','');
-      vid.setAttribute('x5-playsinline','');
-      vid.style.cssText='position:absolute;top:50%;left:50%;'
-        +'min-width:100%;min-height:100%;width:auto;height:auto;'
-        +'transform:translate(-50%,-50%);object-fit:cover;';
-      vid.onerror=function(){
-        this.style.display='none';
-        s.style.background=b.bg||'#2D1F0E';
-      };
-      var source=document.createElement('source');
-      source.src=src;
-      source.type='video/mp4';
-      vid.appendChild(source);
-      s.appendChild(vid);
-      vid.load();
-      vid.play().catch(function(){});
+      // ── 구글 드라이브 영상: iframe 임베드 방식 (직접 재생 불가) ──
+      var fileId=getDriveFileId(b.videoUrl);
+      if(fileId){
+        var iframe=document.createElement('iframe');
+        iframe.src='https://drive.google.com/file/d/'+fileId+'/preview';
+        iframe.setAttribute('allowfullscreen','');
+        iframe.setAttribute('allow','autoplay');
+        iframe.setAttribute('frameborder','0');
+        iframe.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
+        s.appendChild(iframe);
+      } else {
+        // 직접 링크 영상 (mp4 URL)
+        var vid=document.createElement('video');
+        vid.autoplay=true;vid.muted=true;vid.loop=true;
+        vid.setAttribute('playsinline','');
+        vid.style.cssText='position:absolute;top:50%;left:50%;min-width:100%;min-height:100%;transform:translate(-50%,-50%);object-fit:cover;';
+        var src2=document.createElement('source');
+        src2.src=b.videoUrl;src2.type='video/mp4';
+        vid.appendChild(src2);s.appendChild(vid);
+        vid.load();vid.play().catch(function(){});
+      }
 
-    } else if(b.imgUrl){
+    } else if(b.imgUrl||b.imgUrlMo){
+      // PC/모바일 이미지 반응형: picture 태그로 구현
+      var isMo=window.innerWidth<768;
+      var picSrc=(isMo&&b.imgUrlMo)?b.imgUrlMo:b.imgUrl;
       var img=document.createElement('img');
-      img.src=driveUrl(b.imgUrl);
+      img.src=driveUrl(picSrc||b.imgUrl||b.imgUrlMo);
       img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
       img.onerror=function(){this.style.display='none';};
       s.appendChild(img);
@@ -766,8 +830,10 @@ function renderProducts(){
   var el=document.getElementById('productList');
   if(!DB.products.length){el.innerHTML='<div class="empty"><div class="empty-ico">🍐</div><p>등록된 상품이 없어요.</p></div>';return;}
   el.innerHTML=DB.products.map(function(p,i){
-    var img=p.imgUrl
-      ?'<img src="'+driveUrl(p.imgUrl)+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">'
+    var _isMo=window.innerWidth<768;
+    var _pSrc=(_isMo&&p.imgUrlMo)?p.imgUrlMo:(p.imgUrl||p.imgUrlMo);
+    var img=_pSrc
+      ?'<img src="'+driveUrl(_pSrc)+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">'
       :'<div class="product-img-ph"><div style="font-size:28px;">🍐</div><div>사진 없음</div></div>';
     var badge=p.badge?'<div class="product-badge">'+p.badge+'</div>':'';
     var eb=isAdmin?'<button class="btn-edit" style="font-size:11px;padding:4px 8px;" onclick="openEditor(\'product\','+i+')">수정</button>':'';
@@ -962,6 +1028,14 @@ function getYoutubeId(u){
 }
 
 // 구글 드라이브 공유 링크 → 직접 재생 가능한 URL로 변환
+function getDriveFileId(url){
+  if(!url) return '';
+  var m=url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+  if(m) return m[1];
+  var m2=url.match(/[?&]id=([^&]+)/);
+  if(m2&&url.indexOf('drive.google.com')>-1) return m2[1];
+  return '';
+}
 function convertVideoUrl(url){
   if(!url) return '';
   // https://drive.google.com/file/d/FILE_ID/view
@@ -991,6 +1065,81 @@ function renderLocation(){
     ph.style.display='flex';
   };
 }
+/* ── 오디오 기능 ── */
+function initAudio(){
+  var bgSrc=DB.bgMusic||'';
+  var grSrc=DB.greetingVoice||'';
+  if(!bgSrc&&!grSrc) return;
+
+  var bgEl=document.getElementById('bgMusicAudio');
+  var grEl=document.getElementById('greetingAudio');
+  var prompt=document.getElementById('audioPrompt');
+
+  // 배경음악 설정
+  if(bgSrc){
+    var bgUrl=getDriveAudioUrl(bgSrc);
+    bgEl.src=bgUrl;
+    bgEl.volume=0.3; // 배경음악은 작게
+  }
+  // 음성인사 설정
+  if(grSrc){
+    var grUrl=getDriveAudioUrl(grSrc);
+    grEl.src=grUrl;
+    grEl.volume=1.0;
+  }
+
+  // 자동재생 시도
+  function startAudio(){
+    if(grSrc){
+      grEl.play().then(function(){
+        // 음성 끝나면 배경음악 시작
+        grEl.addEventListener('ended',function(){
+          if(bgSrc) bgEl.play().catch(function(){});
+        },{once:true});
+      }).catch(function(){
+        // 자동재생 실패 시 버튼 표시
+        if(prompt) prompt.style.display='flex';
+      });
+    } else if(bgSrc){
+      bgEl.play().catch(function(){
+        if(prompt) prompt.style.display='flex';
+      });
+    }
+  }
+
+  // 버튼 클릭 시 재생
+  if(prompt){
+    prompt.onclick=function(){
+      prompt.style.display='none';
+      startAudio();
+    };
+  }
+
+  // 페이지 첫 클릭/터치 시도 (자동재생 정책 우회)
+  var unlocked=false;
+  function unlock(){
+    if(unlocked) return;
+    unlocked=true;
+    startAudio();
+    document.removeEventListener('click',unlock);
+    document.removeEventListener('touchstart',unlock);
+  }
+  document.addEventListener('click',unlock);
+  document.addEventListener('touchstart',unlock);
+  // 1초 후 자동재생 시도
+  setTimeout(startAudio, 1000);
+}
+
+function getDriveAudioUrl(url){
+  if(!url) return '';
+  var m=url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+  if(m) return 'https://drive.google.com/uc?export=download&id='+m[1];
+  var m2=url.match(/[?&]id=([^&]+)/);
+  if(m2&&url.indexOf('drive.google.com')>-1)
+    return 'https://drive.google.com/uc?export=download&id='+m2[1];
+  return url;
+}
+
 function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 
 function renderAll(){
@@ -1000,6 +1149,7 @@ function renderAll(){
 /* ── 초기 렌더링 ── */
 renderAll();
 initPopup();
+initAudio();
 </script>
 </body>
 </html>

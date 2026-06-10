@@ -139,6 +139,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
 .tog input:checked+.tog-sl{background:var(--gr);}
 .tog input:checked+.tog-sl:before{transform:translateX(20px);}
 .tog-lbl{font-size:13px;font-weight:600;color:var(--txt);}
+.toggle-wrap{display:flex;align-items:center;gap:10px;}
 
 /* 팝업 레이아웃 */
 .pp-wrap{display:grid;grid-template-columns:1fr 260px;gap:20px;align-items:start;}
@@ -252,6 +253,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
       <button class="nb" id="nb-banner" onclick="goTab('banner')"><span class="nb-ico">🖼️</span>메인 배너</button>
       <button class="nb" id="nb-product" onclick="goTab('product')"><span class="nb-ico">📦</span>상품 관리</button>
       <button class="nb" id="nb-notice" onclick="goTab('notice')"><span class="nb-ico">📋</span>공지사항</button>
+      <button class="nb" id="nb-sound" onclick="goTab('sound')"><span class="nb-ico">🔊</span>음향 설정</button>
     </nav>
     <div class="sb-foot">
       <button class="btn-site" onclick="window.open('index.html','_blank')">🌐 홈페이지 보기</button>
@@ -337,6 +339,42 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
         <div class="box-bd"><div class="ilist" id="noticeList"></div><button class="btn-add" onclick="addNotice()">＋ 공지 추가</button></div>
       </div>
     </div>
+    <!-- ══ 음향 패널 ══ -->
+    <div class="panel" id="panel-sound">
+      <div class="ph"><div class="ph-title">🔊 음향 설정</div><div class="ph-sub">홈페이지 접속 시 재생되는 배경음악과 음성 인사를 설정합니다.</div></div>
+      <div class="box">
+        <div class="box-hd"><div class="box-hd-title">배경음악</div></div>
+        <div class="box-bd">
+          <div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:11px 13px;font-size:12px;color:#92400E;line-height:1.8;margin-bottom:14px;">
+            📌 구글 드라이브에 MP3/WAV 파일 업로드 → 공유 → "링크가 있는 모든 사용자" → 링크 복사<br>
+            🎵 배경음악은 음성인사가 끝난 후 자동으로 재생됩니다. (볼륨 30%)
+          </div>
+          <label class="lbl">배경음악 URL</label>
+          <input class="inp" id="snd_bg" placeholder="https://drive.google.com/file/d/파일ID/view">
+          <div class="toggle-wrap" style="margin-bottom:12px;">
+            <label class="tog"><input type="checkbox" id="snd_bg_on" checked><span class="tog-sl"></span></label>
+            <span class="tog-lbl">배경음악 사용</span>
+          </div>
+        </div>
+      </div>
+      <div class="box">
+        <div class="box-hd"><div class="box-hd-title">음성 인사</div></div>
+        <div class="box-bd">
+          <div style="background:#EFF6FF;border:1px solid #93C5FD;border-radius:8px;padding:11px 13px;font-size:12px;color:#1D4ED8;line-height:1.8;margin-bottom:14px;">
+            📌 "남양주 먹골배 광진농원입니다~" 음성 파일을 드라이브에 업로드 후 링크 입력<br>
+            🎤 페이지 접속 시 음성인사가 먼저 재생되고, 이후 배경음악이 시작됩니다.
+          </div>
+          <label class="lbl">음성인사 URL</label>
+          <input class="inp" id="snd_gr" placeholder="https://drive.google.com/file/d/파일ID/view">
+          <div class="toggle-wrap" style="margin-bottom:12px;">
+            <label class="tog"><input type="checkbox" id="snd_gr_on" checked><span class="tog-sl"></span></label>
+            <span class="tog-lbl">음성 인사 사용</span>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row"><button class="btn-save" onclick="saveSound()">💾 음향 설정 저장</button></div>
+    </div>
+
   </main>
 </div>
 
@@ -410,7 +448,9 @@ function saveDB(){
       popup_title: DB.popup.title  ||'',
       popup_desc:  DB.popup.desc   ||'',
       popup_img:   DB.popup.imgUrl ||'',
-      location_img:DB.locationImg  ||''
+      location_img:DB.locationImg  ||'',
+      bg_music:DB.bgMusic||'',
+      greeting_voice:DB.greetingVoice||''
     }
   };
   var url=API_URL+'?action=save&data='+encodeURIComponent(JSON.stringify(payload));
@@ -482,7 +522,7 @@ document.getElementById('sbDim').onclick=function(){
 
 /* ══ 탭 전환 ══ */
 function goTab(t){
-  ['popup','banner','product','notice'].forEach(function(x){
+  ['popup','banner','product','notice','sound'].forEach(function(x){
     document.getElementById('panel-'+x).classList.toggle('on',x===t);
     document.getElementById('nb-'+x).classList.toggle('on',x===t);
   });
@@ -570,7 +610,7 @@ function getImgVal(prefix){
 
 
 /* ══ 초기화 ══ */
-function initAll(){renderStats();loadPopupForm();renderBanners();renderProducts();renderNotices();}
+function initAll(){renderStats();loadPopupForm();renderBanners();renderProducts();renderNotices();loadSoundForm();}
 function renderStats(){
   document.getElementById('stats').innerHTML=
     stat('🖼️','메인배너',DB.banners.length+'개')+
@@ -649,8 +689,15 @@ function bForm(b,i){
       +'background:'+(!imgOn?'var(--gr)':'#fff')+';color:'+(!imgOn?'#fff':'var(--txt2)')+';">🎬 영상</button>'
     +'</div>'
     +'<div id="bmedia_img_'+i+'" style="display:'+(imgOn?'block':'none')+'">'
-      +'<label class="lbl">이미지 URL</label>'
-      +imgWidget(pfx, b.imgUrl||'', 'imgbox-banner', '<strong>권장: 1200 × 525px</strong> (16:7) · JPG/PNG · 2MB 이하')
+      +'<div style="background:#F0F5EA;border:1px solid #C8DFC0;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#3B5A28;line-height:1.8;">'
+      +'📐 <strong>PC 이미지: 1920 × 640px</strong> (와이드) · JPG/PNG · 2MB 이하<br>'
+      +'📐 <strong>모바일 이미지: 750 × 560px</strong> (4:3 비율) · JPG/PNG · 1MB 이하<br>'
+      +'💡 모바일 이미지를 넣지 않으면 PC 이미지가 모바일에도 사용됩니다.'
+      +'</div>'
+      +'<label class="lbl">🖥️ PC 이미지 URL <span style="font-weight:400;color:var(--txt3);">권장: 1920 × 640px</span></label>'
+      +imgWidget(pfx+'_pc', b.imgUrl||'', 'imgbox-banner', '1920 × 640px (와이드) · 2MB 이하')
+      +'<label class="lbl" style="margin-top:6px;">📱 모바일 이미지 URL <span style="font-weight:400;color:var(--txt3);">권장: 750 × 560px</span></label>'
+      +imgWidget(pfx+'_mo', b.imgUrlMo||'', 'imgbox-popup', '750 × 560px (4:3) · 1MB 이하')
     +'</div>'
     +'<div id="bmedia_vid_'+i+'" style="display:'+(!imgOn?'block':'none')+'">'
       +'<label class="lbl">영상 URL</label>'
@@ -691,7 +738,8 @@ function saveBanner(i){
   DB.banners[i]={
     title:document.getElementById('b_t_'+i).value,
     sub:document.getElementById('b_s_'+i).value,
-    imgUrl:useV?'':getImgVal(pfx),
+    imgUrl:useV?'':getImgVal(pfx+'_pc'),
+    imgUrlMo:useV?'':getImgVal(pfx+'_mo'),
     videoUrl:vu,
     videoType:vt,
     bg:DB.banners[i].bg||'#2D1F0E'
@@ -728,13 +776,28 @@ function pForm(p,i){
     +'<label class="lbl">설명</label><textarea class="ta" id="p_d_'+i+'">'+esc(p.desc)+'</textarea>'
     +'<label class="lbl">뱃지</label><div class="badge-opts" id="p_bw_'+i+'">'+bo+'</div><input type="hidden" id="p_b_'+i+'" value="'+esc(p.badge)+'">'
     +'<label class="lbl">상품 이미지</label>'
-    +imgWidget(pfx, p.imgUrl||'', 'imgbox-sq', '<strong>권장: 600 × 600px</strong> (1:1 정사각형) · 흰 배경 권장')
+    +'<div style="background:#F0F5EA;border:1px solid #C8DFC0;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#3B5A28;line-height:1.8;">'
+    +'📐 <strong>PC 이미지: 600 × 600px</strong> (1:1 정사각형) · 흰 배경 권장<br>'
+    +'📐 <strong>모바일 이미지: 400 × 400px</strong> (1:1 정사각형) · 파일 크기 작게<br>'
+    +'💡 모바일 이미지를 넣지 않으면 PC 이미지가 모바일에도 사용됩니다.'
+    +'</div>'
+    +'<label class="lbl">🖥️ PC 이미지 URL <span style="font-weight:400;color:var(--txt3);">권장: 600 × 600px</span></label>'
+    +imgWidget(pfx+'_pc', p.imgUrl||'', 'imgbox-sq', '600 × 600px (1:1) · 흰 배경 권장')
+    +'<label class="lbl" style="margin-top:6px;">📱 모바일 이미지 URL <span style="font-weight:400;color:var(--txt3);">권장: 400 × 400px</span></label>'
+    +imgWidget(pfx+'_mo', p.imgUrlMo||'', 'imgbox-sq', '400 × 400px (1:1) · 파일 크기 작게')
     +'<div class="btn-row"><button class="btn-save" onclick="saveProduct('+i+')">💾 저장</button><button class="btn-del" onclick="delProduct('+i+')">🗑 삭제</button></div>';
 }
 function selBadge(i,v){document.getElementById('p_b_'+i).value=v;document.querySelectorAll('#p_bw_'+i+' .bo').forEach(function(e){e.classList.toggle('on',e.textContent===(v||'없음'));});}
 function saveProduct(i){
   var pfx='pi'+i;
-  DB.products[i]={name:document.getElementById('p_n_'+i).value,price:document.getElementById('p_pr_'+i).value,desc:document.getElementById('p_d_'+i).value,badge:document.getElementById('p_b_'+i).value,imgUrl:getImgVal(pfx)};
+  DB.products[i]={
+    name:document.getElementById('p_n_'+i).value,
+    price:document.getElementById('p_pr_'+i).value,
+    desc:document.getElementById('p_d_'+i).value,
+    badge:document.getElementById('p_b_'+i).value,
+    imgUrl:getImgVal(pfx+'_pc'),
+    imgUrlMo:getImgVal(pfx+'_mo')
+  };
   saveDB();renderProducts();renderStats();toast('✅ 상품 저장!');
 }
 function delProduct(i){if(!confirm('"'+DB.products[i].name+'" 삭제할까요?'))return;DB.products.splice(i,1);saveDB();renderProducts();renderStats();toast('🗑 삭제됐습니다.');}
@@ -781,6 +844,20 @@ function addNotice(){var td=new Date().toISOString().slice(0,10);DB.notices.unsh
 function togIC(t,i){var el=document.getElementById(t+'_bd_'+i);if(el)el.classList.toggle('open');}
 function getImgVal(prefix){var el=document.getElementById(prefix+'_img_val');return el?el.value:'';}
 function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):'';}
+/* ══ 음향 설정 ══ */
+function loadSoundForm(){
+  document.getElementById('snd_bg').value=DB.bgMusic||'';
+  document.getElementById('snd_gr').value=DB.greetingVoice||'';
+}
+function saveSound(){
+  var bgOn=document.getElementById('snd_bg_on').checked;
+  var grOn=document.getElementById('snd_gr_on').checked;
+  DB.bgMusic=bgOn?document.getElementById('snd_bg').value.trim():'';
+  DB.greetingVoice=grOn?document.getElementById('snd_gr').value.trim():'';
+  saveDB();
+  toast('✅ 음향 설정 저장됐습니다!');
+}
+
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 
 /* ══ 이벤트 위임 - 동적 생성 요소 처리 ══ */

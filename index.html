@@ -208,7 +208,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
 @media(min-width:960px){
   .product-img-wrap{height:260px;}
 }
-.product-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.product-img-wrap img{width:100%;height:100%;object-fit:contain;display:block;background:var(--ivory);}
 .product-img-ph{
   width:100%;height:100%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -844,7 +844,7 @@ function renderProducts(){
     var _isMo=window.innerWidth<768;
     var _pSrc=(_isMo&&p.imgUrlMo)?p.imgUrlMo:(p.imgUrl||p.imgUrlMo);
     var img=_pSrc
-      ?'<img src="'+driveUrl(_pSrc)+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">'
+      ?'<img src="'+driveUrl(_pSrc)+'" alt="" style="width:100%;height:100%;object-fit:contain;display:block;background:var(--ivory);">'
       :'<div class="product-img-ph"><div style="font-size:28px;">🍐</div><div>사진 없음</div></div>';
     var badge=p.badge?'<div class="product-badge">'+p.badge+'</div>':'';
     var eb=isAdmin?'<button class="btn-edit" style="font-size:11px;padding:4px 8px;" onclick="openEditor(\'product\','+i+')">수정</button>':'';

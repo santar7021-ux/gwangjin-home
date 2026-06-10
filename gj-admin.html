@@ -346,40 +346,58 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
         <div class="box-bd"><div class="ilist" id="noticeList"></div><button class="btn-add" onclick="addNotice()">＋ 공지 추가</button></div>
       </div>
     </div>
-    <!-- ══ 음향 패널 ══ -->
+    <!-- ══ 음향/영상 패널 ══ -->
     <div class="panel" id="panel-sound">
-      <div class="ph"><div class="ph-title">🔊 음향 설정</div><div class="ph-sub">홈페이지 접속 시 재생되는 배경음악과 음성 인사를 설정합니다.</div></div>
+      <div class="ph"><div class="ph-title">🔊 음향 · 영상 설정</div><div class="ph-sub">배경음악과 소개 영상을 관리합니다.</div></div>
+
+      <!-- 소개 영상 -->
       <div class="box">
-        <div class="box-hd"><div class="box-hd-title">배경음악</div></div>
+        <div class="box-hd"><div class="box-hd-title">🎬 소개 영상 (배너 아래 자동재생)</div></div>
         <div class="box-bd">
-          <div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:11px 13px;font-size:12px;color:#92400E;line-height:1.8;margin-bottom:14px;">
-            📌 구글 드라이브에 MP3/WAV 파일 업로드 → 공유 → "링크가 있는 모든 사용자" → 링크 복사<br>
-            🎵 배경음악은 음성인사가 끝난 후 자동으로 재생됩니다. (볼륨 30%)
+          <div style="background:#F0F5EA;border:1px solid #C8DFC0;border-radius:8px;padding:11px 13px;font-size:12px;color:#3B5A28;line-height:1.8;margin-bottom:14px;">
+            📌 구글 드라이브에 영상 업로드 → 공유 → "링크가 있는 모든 사용자" → 링크 복사<br>
+            🎬 배너 아래 자동재생됩니다. URL 비워두면 영상 섹션이 숨겨집니다.<br>
+            🔇 영상은 소리 없이 재생됩니다.
+          </div>
+          <div class="g2">
+            <div>
+              <label class="lbl">🖥️ PC 영상 URL <span style="font-weight:400;color:var(--txt3);">권장: 1920×640px</span></label>
+              <input class="inp" id="snd_video" placeholder="https://drive.google.com/file/d/파일ID/view" oninput="previewHeroVideo()">
+            </div>
+            <div>
+              <label class="lbl">📱 모바일 영상 URL <span style="font-weight:400;color:var(--txt3);">권장: 750×560px</span></label>
+              <input class="inp" id="snd_video_mo" placeholder="https://drive.google.com/file/d/파일ID/view" style="margin-bottom:0;">
+              <div style="font-size:11px;color:var(--txt3);margin-top:4px;">비워두면 PC 영상이 모바일에도 사용됩니다.</div>
+            </div>
+          </div>
+          <div id="snd_video_preview" style="display:none;margin-top:10px;">
+            <div style="font-size:11px;color:var(--txt3);margin-bottom:6px;">PC 영상 미리보기</div>
+            <div style="background:#000;border-radius:10px;overflow:hidden;aspect-ratio:16/9;">
+              <iframe id="snd_video_frame" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 배경음악 -->
+      <div class="box">
+        <div class="box-hd"><div class="box-hd-title">🎵 배경음악</div></div>
+        <div class="box-bd">
+          <div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:11px 13px;font-size:12px;color:#92400E;line-height:1.8;margin-bottom:12px;">
+            📌 MP3 파일을 드라이브에 업로드 → 공유 → "링크가 있는 모든 사용자" → 링크 복사<br>
+            🎵 홈페이지 접속 시 자동으로 반복 재생됩니다. (볼륨 30%)<br>
+            📱 모바일은 첫 화면 터치 후 재생됩니다.
           </div>
           <label class="lbl">배경음악 URL</label>
-          <input class="inp" id="snd_bg" placeholder="https://drive.google.com/file/d/파일ID/view">
-          <div class="toggle-wrap" style="margin-bottom:12px;">
+          <input class="inp" id="snd_bg" placeholder="https://drive.google.com/file/d/파일ID/view" style="margin-bottom:10px;">
+          <div class="tog-row">
             <label class="tog"><input type="checkbox" id="snd_bg_on" checked><span class="tog-sl"></span></label>
             <span class="tog-lbl">배경음악 사용</span>
           </div>
         </div>
       </div>
-      <div class="box">
-        <div class="box-hd"><div class="box-hd-title">음성 인사</div></div>
-        <div class="box-bd">
-          <div style="background:#EFF6FF;border:1px solid #93C5FD;border-radius:8px;padding:11px 13px;font-size:12px;color:#1D4ED8;line-height:1.8;margin-bottom:14px;">
-            📌 "남양주 먹골배 광진농원입니다~" 음성 파일을 드라이브에 업로드 후 링크 입력<br>
-            🎤 페이지 접속 시 음성인사가 먼저 재생되고, 이후 배경음악이 시작됩니다.
-          </div>
-          <label class="lbl">음성인사 URL</label>
-          <input class="inp" id="snd_gr" placeholder="https://drive.google.com/file/d/파일ID/view">
-          <div class="toggle-wrap" style="margin-bottom:12px;">
-            <label class="tog"><input type="checkbox" id="snd_gr_on" checked><span class="tog-sl"></span></label>
-            <span class="tog-lbl">음성 인사 사용</span>
-          </div>
-        </div>
-      </div>
-      <div class="btn-row"><button class="btn-save" onclick="saveSound()">💾 음향 설정 저장</button></div>
+
+      <div class="btn-row"><button class="btn-save" onclick="saveSound()">💾 설정 저장</button></div>
     </div>
 
   </main>
@@ -457,7 +475,9 @@ function saveDB(){
       popup_img:   DB.popup.imgUrl ||'',
       location_img:DB.locationImg  ||'',
       bg_music:DB.bgMusic||'',
-      greeting_voice:DB.greetingVoice||''
+      greeting_voice:'',
+      hero_video_url:DB.heroVideoUrl||'',
+      hero_video_url_mo:DB.heroVideoUrlMo||''
     }
   };
   var url=API_URL+'?action=save&data='+encodeURIComponent(JSON.stringify(payload));
@@ -852,21 +872,35 @@ function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 /* ══ 음향 설정 ══ */
 function loadSoundForm(){
   document.getElementById('snd_bg').value=DB.bgMusic||'';
-  document.getElementById('snd_gr').value=DB.greetingVoice||'';
+  document.getElementById('snd_video').value=DB.heroVideoUrl||'';
+  document.getElementById('snd_video_mo').value=DB.heroVideoUrlMo||'';
+  previewHeroVideo();
+}
+function previewHeroVideo(){
+  var url=document.getElementById('snd_video').value.trim();
+  var prev=document.getElementById('snd_video_preview');
+  var frame=document.getElementById('snd_video_frame');
+  if(!url||!prev||!frame){if(prev)prev.style.display='none';return;}
+  var fileId=url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+  if(fileId){
+    prev.style.display='block';
+    frame.src='https://drive.google.com/file/d/'+fileId[1]+'/preview?rm=minimal';
+  }else{
+    prev.style.display='none';
+  }
 }
 function saveSound(){
   var bgOn=document.getElementById('snd_bg_on').checked;
-  var grOn=document.getElementById('snd_gr_on').checked;
   DB.bgMusic=bgOn?document.getElementById('snd_bg').value.trim():'';
-  DB.greetingVoice=grOn?document.getElementById('snd_gr').value.trim():'';
+  DB.greetingVoice=''; // 음성인사 사용 안 함
+  DB.heroVideoUrl=document.getElementById('snd_video').value.trim();
+  DB.heroVideoUrlMo=document.getElementById('snd_video_mo').value.trim();
   saveDB();
-  toast('✅ 음향 설정 저장됐습니다!');
+  toast('✅ 음향/영상 설정 저장됐습니다!');
 }
-
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 
-/* ══ 이벤트 위임 - 동적 생성 요소 처리 ══ */
-/* 이벤트 위임 정리됨 */
+/* ══ 이벤트 위임 ══ */
 
 document.addEventListener('input', function(e){
   var target=e.target;

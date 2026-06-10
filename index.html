@@ -510,17 +510,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
 </div>
 
 <!-- 배너 아래 영상 -->
-<div class="hero-video-section">
-  <div class="hero-video-wrap" id="heroVideoWrap">
-    <iframe
-      id="heroVideoFrame"
-      class="hero-video-frame"
-      src="https://drive.google.com/file/d/1weerQXAYqm2G_kH-cAXOQ3iQN5VsJQO4/preview"
-      allow="autoplay; encrypted-media"
-      allowfullscreen
-      frameborder="0">
-    </iframe>
-  </div>
+<div class="hero-video-section" id="heroVideoSection" style="display:none;">
+  <div class="hero-video-wrap" id="heroVideoWrap"></div>
 </div>
 
 <!-- 메인 -->
@@ -652,7 +643,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
 
 <!-- 배경음악 & 음성인사 -->
 <audio id="bgMusicAudio" loop style="display:none;"></audio>
-<audio id="greetingAudio" style="display:none;"></audio>
 
 <!-- 오디오 활성화 버튼 (모바일 자동재생 정책 대응) -->
 <div id="audioPrompt" style="display:none;position:fixed;bottom:80px;right:16px;z-index:700;
@@ -682,7 +672,10 @@ function saveData(d){
     settings:{
       popup_show:String(d.popup.show), popup_title:d.popup.title||'',
       popup_desc:d.popup.desc||'', popup_img:d.popup.imgUrl||'',
-      location_img:d.locationImg||''
+      location_img:d.locationImg||'',
+      bg_music:d.bgMusic||'',
+      hero_video_url:d.heroVideoUrl||'',
+      hero_video_url_mo:d.heroVideoUrlMo||''
     }
   };
   var url=API_URL+'?action=save&data='+encodeURIComponent(JSON.stringify(payload));
@@ -706,7 +699,8 @@ function normalizeData(data){
     popup:data.popup||def.popup,
     locationImg:data.locationImg||def.locationImg,
     bgMusic:data.bgMusic||def.bgMusic||'',
-    greetingVoice:data.greetingVoice||def.greetingVoice||''
+    heroVideoUrl:data.heroVideoUrl||def.heroVideoUrl||'',
+    heroVideoUrlMo:data.heroVideoUrlMo||def.heroVideoUrlMo||''
   };
 }
 function defData(){return{
@@ -727,7 +721,8 @@ function defData(){return{
   popup:{show:true,title:'남양주 먹골배 입고!',desc:'신선한 먹골배가 입고됐습니다. 지금 바로 주문해 보세요!',imgUrl:''},
   locationImg:'https://drive.google.com/uc?export=view&id=1ypQACPcUALdqMM5uBCjBwSQ4Ad6wvKp1',
   bgMusic:'',
-  greetingVoice:''
+  heroVideoUrl:'https://drive.google.com/file/d/1weerQXAYqm2G_kH-cAXOQ3iQN5VsJQO4/view',
+  heroVideoUrlMo:''
 };}
 
 // ── DB 초기화: 캐시 → Sheets 순서로 로딩 ──
@@ -747,6 +742,8 @@ window.addEventListener('load', function(){
       DB=normalizeData(data);
       try{localStorage.setItem(CACHE_KEY,JSON.stringify(DB));}catch(e){}
       renderAll();
+      _audioInited=false; // 새 데이터로 재시도 허용
+      initAudio();
     })
     .catch(function(e){console.log('Sheets 로딩 실패, 캐시 사용:', e);});
 });
@@ -1079,69 +1076,42 @@ function renderLocation(){
     ph.style.display='flex';
   };
 }
-/* ── 오디오 기능 ── */
+/* ── 배경음악 ── */
+var _audioInited=false;
 function initAudio(){
   var bgSrc=DB.bgMusic||'';
-  var grSrc=DB.greetingVoice||'';
-  if(!bgSrc&&!grSrc) return;
+  if(!bgSrc) return;
+  if(_audioInited) return; // 중복 실행 방지
+  _audioInited=true;
 
   var bgEl=document.getElementById('bgMusicAudio');
-  var grEl=document.getElementById('greetingAudio');
   var prompt=document.getElementById('audioPrompt');
+  bgEl.src=getDriveAudioUrl(bgSrc);
+  bgEl.volume=0.3;
 
-  // 배경음악 설정
-  if(bgSrc){
-    var bgUrl=getDriveAudioUrl(bgSrc);
-    bgEl.src=bgUrl;
-    bgEl.volume=0.3; // 배경음악은 작게
+  function startBg(){
+    bgEl.play().catch(function(){
+      // 자동재생 차단 시 버튼 표시
+      if(prompt){prompt.style.display='flex';}
+    });
   }
-  // 음성인사 설정
-  if(grSrc){
-    var grUrl=getDriveAudioUrl(grSrc);
-    grEl.src=grUrl;
-    grEl.volume=1.0;
-  }
-
-  // 자동재생 시도
-  function startAudio(){
-    if(grSrc){
-      grEl.play().then(function(){
-        // 음성 끝나면 배경음악 시작
-        grEl.addEventListener('ended',function(){
-          if(bgSrc) bgEl.play().catch(function(){});
-        },{once:true});
-      }).catch(function(){
-        // 자동재생 실패 시 버튼 표시
-        if(prompt) prompt.style.display='flex';
-      });
-    } else if(bgSrc){
-      bgEl.play().catch(function(){
-        if(prompt) prompt.style.display='flex';
-      });
-    }
-  }
-
-  // 버튼 클릭 시 재생
   if(prompt){
     prompt.onclick=function(){
       prompt.style.display='none';
-      startAudio();
+      startBg();
     };
   }
-
-  // 페이지 첫 클릭/터치 시도 (자동재생 정책 우회)
-  var unlocked=false;
-  function unlock(){
-    if(unlocked) return;
-    unlocked=true;
-    startAudio();
-    document.removeEventListener('click',unlock);
-    document.removeEventListener('touchstart',unlock);
+  // 첫 상호작용 시 재생
+  var _un=false;
+  function _unlock(){
+    if(_un)return;_un=true;
+    startBg();
+    document.removeEventListener('click',_unlock);
+    document.removeEventListener('touchstart',_unlock);
   }
-  document.addEventListener('click',unlock);
-  document.addEventListener('touchstart',unlock);
-  // 1초 후 자동재생 시도
-  setTimeout(startAudio, 1000);
+  document.addEventListener('click',_unlock);
+  document.addEventListener('touchstart',_unlock);
+  setTimeout(startBg,1000);
 }
 
 function getDriveAudioUrl(url){
@@ -1156,52 +1126,40 @@ function getDriveAudioUrl(url){
 
 function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 
+function renderHeroVideo(){
+  var section=document.getElementById('heroVideoSection');
+  var wrap=document.getElementById('heroVideoWrap');
+  if(!section||!wrap) return;
+  // PC/모바일 URL 분기
+  var isMo=window.innerWidth<768;
+  var url=(isMo&&DB.heroVideoUrlMo)?DB.heroVideoUrlMo:(DB.heroVideoUrl||'');
+  if(!url){section.style.display='none';return;}
+  section.style.display='block';
+  var fileId=getDriveFileId(url);
+  // 드라이브: muted=1, autoplay=1 파라미터
+  var src=fileId
+    ?'https://drive.google.com/file/d/'+fileId+'/preview?rm=minimal'
+    :url;
+  wrap.innerHTML='<iframe id="heroVideoFrame" class="hero-video-frame"'
+    +' src="'+src+'"'
+    +' allow="autoplay; encrypted-media"'
+    +' allowfullscreen frameborder="0"></iframe>';
+  setTimeout(function(){
+    var f=document.getElementById('heroVideoFrame');
+    if(f){f.src=src;}
+  },800);
+}
+
 function renderAll(){
-  renderBanners();renderProducts();renderNotices();renderLocation();
+  renderBanners();renderProducts();renderNotices();renderLocation();renderHeroVideo();
 }
 
 /* ── 초기 렌더링 ── */
 renderAll();
 initPopup();
-initAudio();
+initAudio(); // 캐시 데이터로 즉시 시도
 
-/* ── 영상 자동재생: 화면에 보이는 순간 iframe 리로드 ── */
-(function(){
-  var frame = document.getElementById('heroVideoFrame');
-  if(!frame) return;
-  var BASE_SRC = frame.src.split('?')[0];
 
-  // 한 번만 실행
-  var played = false;
-  function tryPlay(){
-    if(played) return;
-    played = true;
-    // src에 autoplay 파라미터 추가해서 리로드
-    frame.src = BASE_SRC + '?autoplay=1&controls=0';
-  }
-
-  // IntersectionObserver: 영상이 화면에 보이면 자동재생
-  if('IntersectionObserver' in window){
-    var obs = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if(e.isIntersecting) tryPlay();
-      });
-    }, {threshold: 0.3});
-    obs.observe(frame);
-  }
-
-  // 페이지 첫 클릭/터치 시도 (모바일 정책)
-  function onFirstInteract(){
-    tryPlay();
-    document.removeEventListener('click', onFirstInteract);
-    document.removeEventListener('touchstart', onFirstInteract);
-  }
-  document.addEventListener('click', onFirstInteract);
-  document.addEventListener('touchstart', onFirstInteract);
-
-  // 2초 후 자동 시도
-  setTimeout(tryPlay, 2000);
-})();
 </script>
 </body>
 </html>

@@ -731,7 +731,7 @@ function renderBanners(){
 
     } else if(b.imgUrl){
       var img=document.createElement('img');
-      img.src=b.imgUrl;
+      img.src=driveUrl(b.imgUrl);
       img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
       img.onerror=function(){this.style.display='none';};
       s.appendChild(img);
@@ -767,7 +767,7 @@ function renderProducts(){
   if(!DB.products.length){el.innerHTML='<div class="empty"><div class="empty-ico">🍐</div><p>등록된 상품이 없어요.</p></div>';return;}
   el.innerHTML=DB.products.map(function(p,i){
     var img=p.imgUrl
-      ?'<img src="'+p.imgUrl+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">'
+      ?'<img src="'+driveUrl(p.imgUrl)+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">'
       :'<div class="product-img-ph"><div style="font-size:28px;">🍐</div><div>사진 없음</div></div>';
     var badge=p.badge?'<div class="product-badge">'+p.badge+'</div>':'';
     var eb=isAdmin?'<button class="btn-edit" style="font-size:11px;padding:4px 8px;" onclick="openEditor(\'product\','+i+')">수정</button>':'';
@@ -808,7 +808,7 @@ function openND(i){
   document.getElementById('ndTitle').textContent=n.title;
   document.getElementById('ndText').textContent=n.text;
   var img=document.getElementById('ndImg');
-  if(n.imgUrl){img.src=n.imgUrl;img.style.display='block';}else img.style.display='none';
+  if(n.imgUrl){img.src=driveUrl(n.imgUrl);img.style.display='block';}else img.style.display='none';
   document.getElementById('ndOv').classList.add('show');
 }
 function closeND(){document.getElementById('ndOv').classList.remove('show');}
@@ -822,7 +822,7 @@ function initPopup(){
   document.getElementById('popupDesc').textContent=DB.popup.desc;
   if(DB.popup.imgUrl){
     document.getElementById('popupPh').style.display='none';
-    var img=document.createElement('img');img.src=DB.popup.imgUrl;img.className='popup-img';
+    var img=document.createElement('img');img.src=driveUrl(DB.popup.imgUrl);img.className='popup-img';
     document.getElementById('popupImgWrap').appendChild(img);
   }
   document.getElementById('popupOv').classList.add('show');
@@ -938,6 +938,22 @@ function deleteItem(){
   if(edMode==='notice'&&edIdx>=0){DB.notices.splice(edIdx,1);saveData(DB);closeED();renderNotices();}
   showToast('삭제됐어요.');
 }
+/* ── 구글 드라이브 링크 → img src 용 URL 변환 ── */
+function driveUrl(url){
+  if(!url) return '';
+  // /file/d/ID/view 형태
+  var m1=url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+  if(m1) return 'https://drive.google.com/thumbnail?id='+m1[1]+'&sz=w1200';
+  // open?id=ID 형태
+  var m2=url.match(/drive\.google\.com\/open\?id=([^&]+)/);
+  if(m2) return 'https://drive.google.com/thumbnail?id='+m2[1]+'&sz=w1200';
+  // uc?export=view&id=ID 또는 uc?id=ID 형태
+  var m3=url.match(/drive\.google\.com\/uc[^?]*\?[^#]*[?&]id=([^&]+)/);
+  if(m3) return 'https://drive.google.com/thumbnail?id='+m3[1]+'&sz=w1200';
+  // thumbnail?id=ID (이미 변환된 형태) → 그대로
+  return url;
+}
+
 function getYoutubeId(u){
   if(!u) return '';
   var pp=[/[?&]v=([^&#]{11})/,/youtu\.be\/([^?&#]{11})/,/\/embed\/([^?&#]{11})/,/\/shorts\/([^?&#]{11})/,/\/v\/([^?&#]{11})/];
@@ -963,12 +979,17 @@ function convertVideoUrl(url){
 function switchMType(t){var iw=document.getElementById('ef_image_wrap'),vw=document.getElementById('ef_video_wrap'),ib=document.getElementById('mtype_img'),vb=document.getElementById('mtype_vid');if(!iw)return;iw.style.display=t==='image'?'block':'none';vw.style.display=t==='video'?'block':'none';if(ib){ib.style.background=t==='image'?'#3B5A28':'#fff';ib.style.color=t==='image'?'#fff':'#5A4030';}if(vb){vb.style.background=t==='video'?'#3B5A28':'#fff';vb.style.color=t==='video'?'#fff':'#5A4030';}}
 function goOrder(){window.open('https://santar7021-ux.github.io/gwangjin/','_blank');}
 function renderLocation(){
-  // 이미지 고정 - 관리자만 직접 코드로 변경
   var img=document.getElementById('mapImg');
   var ph=document.getElementById('mapImgPh');
   if(!img||!ph) return;
+  var src=driveUrl(DB.locationImg||'https://drive.google.com/uc?export=view&id=1ypQACPcUALdqMM5uBCjBwSQ4Ad6wvKp1');
+  img.src=src;
   img.style.display='block';
   ph.style.display='none';
+  img.onerror=function(){
+    this.style.display='none';
+    ph.style.display='flex';
+  };
 }
 function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 

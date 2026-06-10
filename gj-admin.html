@@ -142,17 +142,17 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
 .toggle-wrap{display:flex;align-items:center;gap:10px;}
 
 /* 팝업 레이아웃 */
-.pp-wrap{display:grid;grid-template-columns:1fr 260px;gap:20px;align-items:start;}
-.pp-prev-card{background:#fff;border-radius:14px;border:1px solid var(--bds);padding:16px;position:sticky;top:20px;}
-.pp-prev-title{font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:10px;}
-.pp-prev{border:2px solid var(--bds);border-radius:14px;overflow:hidden;}
+.pp-wrap{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;}
+.pp-prev-card{background:#fff;border-radius:14px;border:1px solid var(--bds);padding:20px;position:sticky;top:20px;}
+.pp-prev-title{font-size:13px;font-weight:700;color:var(--txt2);margin-bottom:12px;text-align:center;}
+.pp-prev{border:2px solid var(--bds);border-radius:18px;overflow:hidden;box-shadow:0 4px 16px rgba(45,31,14,.1);}
 .pp-img{width:100%;aspect-ratio:4/3;background:var(--br);display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .pp-img img{width:100%;height:100%;object-fit:cover;}
-.pp-body{padding:12px;}
-.pp-t{font-size:13px;font-weight:800;color:var(--br);}
-.pp-d{font-size:11px;color:var(--txt2);margin-top:3px;line-height:1.5;}
+.pp-body{padding:14px 16px;}
+.pp-t{font-size:15px;font-weight:800;color:var(--br);}
+.pp-d{font-size:13px;color:var(--txt2);margin-top:5px;line-height:1.6;}
 .pp-foot{display:flex;border-top:1px solid var(--bds);}
-.pp-btn{flex:1;padding:9px;border:none;background:none;font-size:10px;color:var(--txt3);cursor:default;}
+.pp-btn{flex:1;padding:12px;border:none;background:none;font-size:12px;color:var(--txt3);cursor:default;}
 .pp-btn.main{font-weight:700;color:var(--gr);border-left:1px solid var(--bds);}
 
 /* 배지 선택 */
@@ -184,10 +184,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
 .toast.show{opacity:1;}
 
 /* ══ 반응형 ══ */
+@media(max-width:1200px){
+  .pp-wrap{grid-template-columns:1fr 300px;}
+}
 @media(max-width:1100px){
   .stats{grid-template-columns:repeat(2,1fr);}
-  .pp-wrap{grid-template-columns:1fr;}
-  .pp-prev-card{position:static;}
+  .pp-wrap{grid-template-columns:1fr;display:flex;flex-direction:column;}
+  .pp-prev-card{position:static;max-width:380px;margin:0 auto 20px;order:1 !important;}
+  .pp-wrap .box{order:2 !important;}
 }
 @media(max-width:900px){
   :root{--sb:220px;}
@@ -268,7 +272,28 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
     <div class="panel on" id="panel-popup">
       <div class="ph"><div class="ph-title">🪟 팝업 배너</div><div class="ph-sub">접속 시 표시되는 팝업을 설정합니다.</div></div>
       <div class="pp-wrap">
-        <div class="box">
+
+        <!-- 미리보기 (오른쪽 고정) -->
+        <div class="pp-prev-card" style="order:2;">
+          <div class="pp-prev-title">👁️ 실시간 미리보기</div>
+          <div class="pp-prev">
+            <div class="pp-img" id="pp_prev_img"><span style="font-size:40px;">🍐</span></div>
+            <div class="pp-body">
+              <div class="pp-t" id="pp_prev_title">팝업 제목</div>
+              <div class="pp-d" id="pp_prev_desc">팝업 내용</div>
+            </div>
+            <div class="pp-foot">
+              <div class="pp-btn">오늘 하루 보지 않기</div>
+              <div class="pp-btn main">닫기</div>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:10px;background:var(--ivory);border-radius:10px;font-size:11px;color:var(--txt3);line-height:1.7;text-align:center;">
+            좌측에서 내용을 수정하면<br>여기서 바로 확인할 수 있어요
+          </div>
+        </div>
+
+        <!-- 편집 (왼쪽) -->
+        <div class="box" style="order:1;">
           <div class="box-hd"><div class="box-hd-title">팝업 편집</div></div>
           <div class="box-bd">
             <div class="tog-row">
@@ -279,37 +304,19 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(135deg,#2D
             <input class="inp" id="pp_title" placeholder="예: 남양주 먹골배 입고!" oninput="prevPopup()">
             <label class="lbl">팝업 내용</label>
             <textarea class="ta" id="pp_desc" placeholder="팝업 내용을 입력하세요." oninput="prevPopup()"></textarea>
-            <label class="lbl">팝업 이미지</label>
-            <div class="img-upload-wrap" id="pp_img_wrap">
-              <div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:10px 13px;font-size:12px;color:#92400E;line-height:1.8;margin-bottom:10px;">
-                📌 이미지는 <strong>구글 드라이브 공유 링크</strong>로 입력하세요.<br>
-                드라이브 파일 우클릭 → 공유 → "링크가 있는 모든 사용자" 설정 → 링크 복사
-              </div>
-              <input class="inp" id="pp_url_inp" placeholder="https://drive.google.com/file/d/파일ID/view 또는 직접 이미지 URL" oninput="handleUrl(this,'pp')" style="margin-bottom:0;">
-              <div class="size-tip" style="margin-top:10px;">📐 <strong>권장: 750 × 560px</strong> (4:3 비율) · 1MB 이하</div>
-              <div class="imgbox imgbox-popup" id="pp_imgbox">
-                <div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 미리보기</div></div>
-                <button class="img-clear" onclick="clearImg('pp')">✕</button>
-              </div>
+            <label class="lbl">팝업 이미지 URL</label>
+            <input class="inp" id="pp_img_val" placeholder="https://drive.google.com/file/d/파일ID/view" oninput="previewImg('pp');prevPopup();" style="margin-bottom:6px;">
+            <div style="font-size:11px;color:var(--txt3);margin-bottom:10px;">드라이브: 파일 우클릭 → 공유 → "링크가 있는 모든 사용자" → 링크 복사</div>
+            <div class="size-tip">📐 <strong>권장: 750 × 560px</strong> (4:3 비율) · 1MB 이하</div>
+            <div class="imgbox imgbox-popup" id="pp_imgbox">
+              <div class="imgbox-ph"><div class="imgbox-ph-ico">🖼️</div><div class="imgbox-ph-txt">이미지 URL 입력 시 미리보기</div></div>
             </div>
-            <input type="hidden" id="pp_img_val">
-            <div class="btn-row"><button class="btn-save" onclick="savePopup()">💾 팝업 저장</button></div>
-          </div>
-        </div>
-        <div class="pp-prev-card">
-          <div class="pp-prev-title">미리보기</div>
-          <div class="pp-prev">
-            <div class="pp-img" id="pp_prev_img"><span style="font-size:32px;">🍐</span></div>
-            <div class="pp-body">
-              <div class="pp-t" id="pp_prev_title">팝업 제목</div>
-              <div class="pp-d" id="pp_prev_desc">팝업 내용</div>
-            </div>
-            <div class="pp-foot">
-              <div class="pp-btn">오늘 하루 보지 않기</div>
-              <div class="pp-btn main">닫기</div>
+            <div class="btn-row" style="margin-top:14px;">
+              <button class="btn-save" onclick="savePopup()">💾 팝업 저장</button>
             </div>
           </div>
         </div>
+
       </div>
     </div>
 
@@ -630,22 +637,20 @@ function loadPopupForm(){
   document.getElementById('pp_title').value=p.title||'';
   document.getElementById('pp_desc').value=p.desc||'';
   document.getElementById('pp_img_val').value=p.imgUrl||'';
-  if(p.imgUrl){
-    document.getElementById('pp_url_inp').value=p.imgUrl;
-    setImgVal('pp',p.imgUrl);
-  }
+  if(p.imgUrl) previewImg('pp');
   prevPopup();
 }
 function prevPopup(){
   var t=document.getElementById('pp_title').value||'팝업 제목';
   var d=document.getElementById('pp_desc').value||'팝업 내용';
-  var img=document.getElementById('pp_img_val').value;
+  var raw=document.getElementById('pp_img_val').value;
+  var img=raw?driveUrl(raw):'';
   var show=document.getElementById('pp_show').checked;
   document.getElementById('pp_prev_title').textContent=t;
   document.getElementById('pp_prev_desc').textContent=d;
   document.getElementById('pp_show_lbl').textContent=show?'팝업 표시 중':'팝업 숨김';
   var b=document.getElementById('pp_prev_img');
-  b.innerHTML=img?'<img src="'+img+'" style="width:100%;height:100%;object-fit:cover;">':'<span style="font-size:32px;">🍐</span>';
+  b.innerHTML=img?'<img src="'+img+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<span style=font-size:40px>🍐</span>\'">':'<span style="font-size:40px;">🍐</span>';
 }
 function savePopup(){
   DB.popup={show:document.getElementById('pp_show').checked,title:document.getElementById('pp_title').value,desc:document.getElementById('pp_desc').value,imgUrl:document.getElementById('pp_img_val').value};

@@ -119,11 +119,37 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
 @media(min-width:768px){.banner-nav.prev{left:20px;}.banner-nav.next{right:20px;}}
 
 /* ══ 배너 아래 영상 ══ */
+.hero-video-section{
+  background:var(--cream);
+  padding:32px 0 0;
+}
+@media(min-width:768px){.hero-video-section{padding:40px 0 0;}}
+
+.hero-video-label{
+  text-align:center;
+  font-family:'Noto Serif KR',serif;
+  font-size:18px;font-weight:700;
+  color:var(--br);
+  margin-bottom:16px;
+  padding:0 16px;
+}
+@media(min-width:768px){.hero-video-label{font-size:22px;margin-bottom:20px;}}
+
 .hero-video-wrap{
   position:relative;
   width:100%;
+  max-width:1100px;
+  margin:0 auto;
+  border-radius:0;
   background:#000;
   overflow:hidden;
+  box-shadow:0 8px 40px rgba(45,31,14,.18);
+}
+@media(min-width:768px){
+  .hero-video-wrap{
+    border-radius:16px;
+    margin:0 auto 0;
+  }
 }
 .hero-video-frame{
   width:100%;
@@ -136,17 +162,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
     aspect-ratio:16/7;
     max-height:520px;
   }
-}
-.hero-video-overlay{
-  position:absolute;
-  bottom:14px;left:14px;
-  pointer-events:none;
-}
-.hero-video-badge{
-  background:rgba(45,31,14,.75);
-  color:#fff;font-size:12px;font-weight:700;
-  padding:5px 12px;border-radius:20px;
-  backdrop-filter:blur(4px);
 }
 
 /* ══ 메인 콘텐츠 ══ */
@@ -494,19 +509,17 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
   <div class="banner-dots" id="bannerDots"></div>
 </div>
 
-<!-- 배너 아래 자동재생 영상 -->
-<div class="hero-video-wrap">
-  <iframe
-    id="heroVideoFrame"
-    class="hero-video-frame"
-    src="https://drive.google.com/file/d/1weerQXAYqm2G_kH-cAXOQ3iQN5VsJQO4/preview"
-    allow="autoplay"
-    allowfullscreen
-    frameborder="0"
-    loading="lazy">
-  </iframe>
-  <div class="hero-video-overlay">
-    <div class="hero-video-badge">🍐 광진농원 영상</div>
+<!-- 배너 아래 영상 -->
+<div class="hero-video-section">
+  <div class="hero-video-wrap" id="heroVideoWrap">
+    <iframe
+      id="heroVideoFrame"
+      class="hero-video-frame"
+      src="https://drive.google.com/file/d/1weerQXAYqm2G_kH-cAXOQ3iQN5VsJQO4/preview"
+      allow="autoplay; encrypted-media"
+      allowfullscreen
+      frameborder="0">
+    </iframe>
   </div>
 </div>
 
@@ -568,8 +581,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
   <footer class="footer">
     <div class="footer-logo">🍐 남양주 먹골배 광진농원</div>
     <div>경기 남양주시 별내면 광전리 269-2</div>
+    <div>대표자 : 김경오</div>
     <div>📞 010-7146-1084</div>
-    <div style="margin-top:8px;font-size:11px;">© 2024 광진농원. All rights reserved.</div>
+    <div style="margin-top:8px;font-size:11px;">© 2026 광진농원. All rights reserved.</div>
   </footer>
 </main>
 
@@ -1150,6 +1164,44 @@ function renderAll(){
 renderAll();
 initPopup();
 initAudio();
+
+/* ── 영상 자동재생: 화면에 보이는 순간 iframe 리로드 ── */
+(function(){
+  var frame = document.getElementById('heroVideoFrame');
+  if(!frame) return;
+  var BASE_SRC = frame.src.split('?')[0];
+
+  // 한 번만 실행
+  var played = false;
+  function tryPlay(){
+    if(played) return;
+    played = true;
+    // src에 autoplay 파라미터 추가해서 리로드
+    frame.src = BASE_SRC + '?autoplay=1&controls=0';
+  }
+
+  // IntersectionObserver: 영상이 화면에 보이면 자동재생
+  if('IntersectionObserver' in window){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting) tryPlay();
+      });
+    }, {threshold: 0.3});
+    obs.observe(frame);
+  }
+
+  // 페이지 첫 클릭/터치 시도 (모바일 정책)
+  function onFirstInteract(){
+    tryPlay();
+    document.removeEventListener('click', onFirstInteract);
+    document.removeEventListener('touchstart', onFirstInteract);
+  }
+  document.addEventListener('click', onFirstInteract);
+  document.addEventListener('touchstart', onFirstInteract);
+
+  // 2초 후 자동 시도
+  setTimeout(tryPlay, 2000);
+})();
 </script>
 </body>
 </html>

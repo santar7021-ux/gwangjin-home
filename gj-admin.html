@@ -496,9 +496,9 @@ function defDB(){return{
     {title:'택배 주문 안내',sub:'전국 택배 배송 · 1박스 4,000원',imgUrl:'',bg:'#4A3828'}
   ],
   products:[
-    {name:'신고 10과 (3.5kg)',desc:'달콤하고 과즙이 풍부한 프리미엄 신고배입니다.',price:'45,000원',badge:'BEST',imgUrl:'https://drive.google.com/uc?export=view&id=1miwoeGXSaBahsxTEu-yIrZoQG0tZu8Nd'},
-    {name:'신고 13과 (3.5kg)',desc:'알이 굵고 단단한 신고배 13과입니다.',price:'34,000원',badge:'',imgUrl:''},
-    {name:'신고 15과 (3.5kg)',desc:'실속형 소과 신고배입니다.',price:'30,000원',badge:'실속',imgUrl:''}
+    {name:'신고 10과 (3.5kg)',desc:'달콤하고 과즙이 풍부한 프리미엄 신고배입니다.',price:'45,000원',badge:'BEST',shippingFee:'택배비 4,000원',imgUrl:'https://drive.google.com/uc?export=view&id=1miwoeGXSaBahsxTEu-yIrZoQG0tZu8Nd'},
+    {name:'신고 13과 (3.5kg)',desc:'알이 굵고 단단한 신고배 13과입니다.',price:'34,000원',badge:'',shippingFee:'택배비 4,000원',imgUrl:''},
+    {name:'신고 15과 (3.5kg)',desc:'실속형 소과 신고배입니다.',price:'30,000원',badge:'실속',shippingFee:'택배비 4,000원',imgUrl:''}
   ],
   notices:[
     {type:'notice',title:'2024년 햇배 입고 안내',text:'안녕하세요, 광진농원입니다.\n올해 신선한 햇배가 입고되었습니다.',imgUrl:'',date:'2024-09-01'},
@@ -829,6 +829,8 @@ function pForm(p,i){
   var bo=bgs.map(function(b){return '<div class="bo'+(p.badge===b?' on':'')+'" onclick="selBadge('+i+',\''+b+'\')">'+( b||'없음')+'</div>';}).join('');
   return '<div class="g2"><div><label class="lbl">상품명</label><input class="inp" id="p_n_'+i+'" value="'+esc(p.name)+'"></div>'
     +'<div><label class="lbl">가격</label><input class="inp" id="p_pr_'+i+'" value="'+esc(p.price)+'" placeholder="45,000원"></div></div>'
+    +'<div style="margin-bottom:12px;"><label class="lbl">택배비 <span style="font-weight:400;color:var(--txt3);">홈페이지에 표시될 문구</span></label>'
+    +'<input class="inp" id="p_sf_'+i+'" value="'+esc(p.shippingFee||'')+'" placeholder="예: 택배비 4,000원 · 무료배송 · 별도문의" style="margin-bottom:0;"></div>'
     +'<label class="lbl">설명</label><textarea class="ta" id="p_d_'+i+'">'+esc(p.desc)+'</textarea>'
     +'<label class="lbl">뱃지</label><div class="badge-opts" id="p_bw_'+i+'">'+bo+'</div><input type="hidden" id="p_b_'+i+'" value="'+esc(p.badge)+'">'
     +'<label class="lbl">상품 이미지</label>'
@@ -846,11 +848,13 @@ function pForm(p,i){
 function selBadge(i,v){document.getElementById('p_b_'+i).value=v;document.querySelectorAll('#p_bw_'+i+' .bo').forEach(function(e){e.classList.toggle('on',e.textContent===(v||'없음'));});}
 function saveProduct(i){
   var pfx='pi'+i;
+  var sfEl=document.getElementById('p_sf_'+i);
   DB.products[i]={
     name:document.getElementById('p_n_'+i).value,
     price:document.getElementById('p_pr_'+i).value,
     desc:document.getElementById('p_d_'+i).value,
     badge:document.getElementById('p_b_'+i).value,
+    shippingFee:sfEl?sfEl.value.trim():'',
     imgUrl:getImgVal(pfx+'_pc'),
     imgUrlMo:getImgVal(pfx+'_mo')
   };

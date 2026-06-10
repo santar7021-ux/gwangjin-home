@@ -203,12 +203,16 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
   overflow:hidden;background:var(--ivory);position:relative;flex-shrink:0;
 }
 @media(min-width:640px){
-  .product-img-wrap{width:100%;height:220px;min-width:unset;}
+  .product-img-wrap{width:100%;height:auto;aspect-ratio:1/1;min-width:unset;}
 }
-@media(min-width:960px){
-  .product-img-wrap{height:260px;}
+.product-img-wrap img{
+  width:100%;height:100%;
+  object-fit:contain;display:block;
+  background:var(--ivory);
+  padding:12px; /* 이미지 사방 여백 - 균일한 카드 느낌 */
+  box-sizing:border-box;
 }
-.product-img-wrap img{width:100%;height:100%;object-fit:contain;display:block;background:var(--ivory);}
+@media(min-width:640px){.product-img-wrap img{padding:16px;}}
 .product-img-ph{
   width:100%;height:100%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -691,7 +695,7 @@ function normalizeData(data){
               videoUrl:b.videoUrl||'',videoType:b.videoType||'',bg:b.bg||'#2D1F0E'};
     }),
     products:(data.products&&data.products.length?data.products:def.products).map(function(p){
-      return {name:p.name||'',desc:p.desc||'',price:p.price||'',badge:p.badge||'',imgUrl:p.imgUrl||'',imgUrlMo:p.imgUrlMo||''};
+      return {name:p.name||'',desc:p.desc||'',price:p.price||'',badge:p.badge||'',shippingFee:p.shippingFee||'',imgUrl:p.imgUrl||'',imgUrlMo:p.imgUrlMo||''};
     }),
     notices:(data.notices&&data.notices.length?data.notices:def.notices).map(function(n){
       return {type:n.type||'notice',title:n.title||'',text:n.text||'',imgUrl:n.imgUrl||'',date:n.date||''};
@@ -710,9 +714,9 @@ function defData(){return{
     {title:'택배 주문 안내',sub:'전국 택배 배송 · 1박스 4,000원',imgUrl:'',imgUrlMo:'',videoUrl:'',videoType:'',bg:'#4A3828'}
   ],
   products:[
-    {name:'신고 10과 (3.5kg)',desc:'달콤하고 과즙이 풍부한 프리미엄 신고배입니다. 산지 직배송으로 신선함을 그대로 전달해 드립니다.',price:'45,000원',badge:'BEST',imgUrl:'https://drive.google.com/uc?export=view&id=1miwoeGXSaBahsxTEu-yIrZoQG0tZu8Nd',imgUrlMo:''},
-    {name:'신고 13과 (3.5kg)',desc:'알이 굵고 단단한 신고배 13과입니다. 선물용으로 인기가 많은 상품입니다.',price:'34,000원',badge:'',imgUrl:'',imgUrlMo:''},
-    {name:'신고 15과 (3.5kg)',desc:'실속형 소과 신고배입니다. 합리적인 가격으로 먹골배의 맛을 즐겨보세요.',price:'30,000원',badge:'실속',imgUrl:'',imgUrlMo:''}
+    {name:'신고 10과 (3.5kg)',desc:'달콤하고 과즙이 풍부한 프리미엄 신고배입니다. 산지 직배송으로 신선함을 그대로 전달해 드립니다.',price:'45,000원',badge:'BEST',shippingFee:'택배비 4,000원',imgUrl:'https://drive.google.com/uc?export=view&id=1miwoeGXSaBahsxTEu-yIrZoQG0tZu8Nd',imgUrlMo:''},
+    {name:'신고 13과 (3.5kg)',desc:'알이 굵고 단단한 신고배 13과입니다. 선물용으로 인기가 많은 상품입니다.',price:'34,000원',badge:'',shippingFee:'택배비 4,000원',imgUrl:'',imgUrlMo:''},
+    {name:'신고 15과 (3.5kg)',desc:'실속형 소과 신고배입니다. 합리적인 가격으로 먹골배의 맛을 즐겨보세요.',price:'30,000원',badge:'실속',shippingFee:'택배비 4,000원',imgUrl:'',imgUrlMo:''}
   ],
   notices:[
     {type:'notice',title:'2024년 햇배 입고 안내',text:'안녕하세요, 광진농원입니다.\n올해 신선한 햇배가 입고되었습니다.\n택배 주문은 홈페이지 주문서를 이용해 주세요.',imgUrl:'',date:'2024-09-01'},
@@ -844,7 +848,7 @@ function renderProducts(){
     var _isMo=window.innerWidth<768;
     var _pSrc=(_isMo&&p.imgUrlMo)?p.imgUrlMo:(p.imgUrl||p.imgUrlMo);
     var img=_pSrc
-      ?'<img src="'+driveUrl(_pSrc)+'" alt="" style="width:100%;height:100%;object-fit:contain;display:block;background:var(--ivory);">'
+      ?'<img src="'+driveUrl(_pSrc)+'" alt="" style="width:100%;height:100%;object-fit:contain;display:block;background:var(--ivory);padding:12px;box-sizing:border-box;">'
       :'<div class="product-img-ph"><div style="font-size:28px;">🍐</div><div>사진 없음</div></div>';
     var badge=p.badge?'<div class="product-badge">'+p.badge+'</div>':'';
     var eb=isAdmin?'<button class="btn-edit" style="font-size:11px;padding:4px 8px;" onclick="openEditor(\'product\','+i+')">수정</button>':'';
@@ -856,7 +860,7 @@ function renderProducts(){
           +'<div class="product-desc">'+p.desc+'</div>'
         +'</div>'
         +'<div class="product-bottom">'
-          +'<div><div class="product-price">'+p.price+'</div><div class="product-price-sub">+ 택배비 4,000원</div></div>'
+          +'<div><div class="product-price">'+p.price+'</div>'+(p.shippingFee?'<div class="product-price-sub">'+p.shippingFee+'</div>':'')+'</div>'
           +'<div style="display:flex;gap:5px;align-items:center;">'+eb+'<button class="btn-product-order" onclick="goOrder()">주문</button></div>'
         +'</div>'
       +'</div>'

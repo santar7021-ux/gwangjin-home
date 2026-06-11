@@ -118,52 +118,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
 .banner-nav.next{right:10px;}
 @media(min-width:768px){.banner-nav.prev{left:20px;}.banner-nav.next{right:20px;}}
 
-/* ══ 배너 아래 영상 ══ */
-.hero-video-section{
-  background:var(--cream);
-  padding:32px 0 0;
-}
-@media(min-width:768px){.hero-video-section{padding:40px 0 0;}}
-
-.hero-video-label{
-  text-align:center;
-  font-family:'Noto Serif KR',serif;
-  font-size:18px;font-weight:700;
-  color:var(--br);
-  margin-bottom:16px;
-  padding:0 16px;
-}
-@media(min-width:768px){.hero-video-label{font-size:22px;margin-bottom:20px;}}
-
-.hero-video-wrap{
-  position:relative;
-  width:100%;
-  max-width:1100px;
-  margin:0 auto;
-  border-radius:0;
-  background:#000;
-  overflow:hidden;
-  box-shadow:0 8px 40px rgba(45,31,14,.18);
-}
-@media(min-width:768px){
-  .hero-video-wrap{
-    border-radius:16px;
-    margin:0 auto 0;
-  }
-}
-.hero-video-frame{
-  width:100%;
-  display:block;
-  border:none;
-  aspect-ratio:16/9;
-}
-@media(min-width:768px){
-  .hero-video-frame{
-    aspect-ratio:16/7;
-    max-height:520px;
-  }
-}
-
 /* ══ 메인 콘텐츠 ══ */
 .main{width:100%;max-width:1200px;margin:0 auto;padding:0 16px 120px;}
 @media(min-width:768px){.main{padding:0 40px 120px;}}
@@ -506,9 +460,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
   <div class="banner-dots" id="bannerDots"></div>
 </div>
 
-<!-- 배너 아래 영상 -->
-<div class="hero-video-section" id="heroVideoSection" style="display:none;">
-  <div class="hero-video-wrap" id="heroVideoWrap"></div>
 </div>
 
 <!-- 메인 -->
@@ -670,9 +621,7 @@ function saveData(d){
       popup_show:String(d.popup.show), popup_title:d.popup.title||'',
       popup_desc:d.popup.desc||'', popup_img:d.popup.imgUrl||'',
       location_img:d.locationImg||'',
-      bg_music:d.bgMusic||'',
-      hero_video_url:d.heroVideoUrl||'',
-      hero_video_url_mo:d.heroVideoUrlMo||''
+      bg_music:d.bgMusic||''
     }
   };
   var url=API_URL+'?action=save&data='+encodeURIComponent(JSON.stringify(payload));
@@ -702,8 +651,6 @@ function normalizeData(data){
     popup:data.popup||def.popup,
     locationImg:data.locationImg||def.locationImg,
     bgMusic:data.bgMusic||def.bgMusic||'',
-    heroVideoUrl:data.heroVideoUrl||def.heroVideoUrl||'',
-    heroVideoUrlMo:data.heroVideoUrlMo||def.heroVideoUrlMo||''
   };
 }
 function defData(){return{
@@ -724,8 +671,6 @@ function defData(){return{
   popup:{show:true,title:'남양주 먹골배 입고!',desc:'신선한 먹골배가 입고됐습니다. 지금 바로 주문해 보세요!',imgUrl:''},
   locationImg:'https://drive.google.com/uc?export=view&id=1ypQACPcUALdqMM5uBCjBwSQ4Ad6wvKp1',
   bgMusic:'',
-  heroVideoUrl:'',  // 관리자에서 설정
-  heroVideoUrlMo:''
 };}
 
 // ── DB 초기화: 캐시 → Sheets 순서로 로딩 ──
@@ -1064,21 +1009,28 @@ function renderLocation(){
 }
 /* ── 배경음악 ── */
 var _audioInited=false;
+var _lastBgSrc='';
 function initAudio(){
   var bgSrc=DB.bgMusic||'';
   if(!bgSrc) return;
-  if(_audioInited) return; // 중복 실행 방지
+  // 같은 URL이면 재시작 안 함
+  if(_audioInited && bgSrc===_lastBgSrc) return;
   _audioInited=true;
+  _lastBgSrc=bgSrc;
 
   var bgEl=document.getElementById('bgMusicAudio');
   var prompt=document.getElementById('audioPrompt');
-  bgEl.src=getDriveAudioUrl(bgSrc);
+  var audioUrl=getDriveAudioUrl(bgSrc);
+  bgEl.src=audioUrl;
   bgEl.volume=0.3;
 
   function startBg(){
-    bgEl.play().catch(function(){
+    bgEl.play().then(function(){
+      // 재생 성공 시 버튼 숨김
+      if(prompt) prompt.style.display='none';
+    }).catch(function(){
       // 자동재생 차단 시 버튼 표시
-      if(prompt){prompt.style.display='flex';}
+      if(prompt) prompt.style.display='flex';
     });
   }
   if(prompt){
@@ -1097,85 +1049,26 @@ function initAudio(){
   }
   document.addEventListener('click',_unlock);
   document.addEventListener('touchstart',_unlock);
+  // 1초 후 자동 시도
   setTimeout(startBg,1000);
 }
 
 function getDriveAudioUrl(url){
   if(!url) return '';
-  var m=url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
-  if(m) return 'https://drive.google.com/uc?export=download&id='+m[1];
-  var m2=url.match(/[?&]id=([^&]+)/);
-  if(m2&&url.indexOf('drive.google.com')>-1)
-    return 'https://drive.google.com/uc?export=download&id='+m2[1];
+  var id='';
+  var m1=url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+  if(m1) id=m1[1];
+  if(!id){var m2=url.match(/[?&]id=([^&]+)/);if(m2&&url.indexOf('drive.google.com')>-1)id=m2[1];}
+  // export=view: 구글 드라이브 직접 스트리밍 (MP3 재생 가능)
+  if(id) return 'https://drive.google.com/uc?export=view&id='+id;
   return url;
 }
 
 function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 
-function renderHeroVideo(){
-  var section=document.getElementById('heroVideoSection');
-  var wrap=document.getElementById('heroVideoWrap');
-  if(!section||!wrap) return;
-  var isMo=window.innerWidth<768;
-  var url=(isMo&&DB.heroVideoUrlMo)?DB.heroVideoUrlMo:(DB.heroVideoUrl||'');
-  if(!url){section.style.display='none';return;}
-  section.style.display='block';
-
-  // 유튜브 링크 → 완전 자동재생 (음소거)
-  var ytId=getYoutubeId(url);
-  if(ytId){
-    var iframe=document.createElement('iframe');
-    iframe.id='heroVideoFrame';
-    iframe.className='hero-video-frame';
-    iframe.src='https://www.youtube.com/embed/'+ytId
-      +'?autoplay=1&mute=1&loop=1&playlist='+ytId
-      +'&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1';
-    iframe.setAttribute('allow','autoplay; encrypted-media; fullscreen');
-    iframe.setAttribute('allowfullscreen','');
-    iframe.setAttribute('frameborder','0');
-    wrap.innerHTML='';
-    wrap.appendChild(iframe);
-    return;
-  }
-
-  // 구글 드라이브 MP4 → <video> 태그로 자동재생
-  var fileId=getDriveFileId(url);
-  if(fileId){
-    var vid=document.createElement('video');
-    vid.className='hero-video-frame';
-    vid.autoplay=true;
-    vid.muted=true;
-    vid.loop=true;
-    vid.setAttribute('playsinline','');
-    vid.setAttribute('webkit-playsinline','');
-    vid.style.cssText='width:100%;display:block;';
-    // 구글 드라이브 직접 스트리밍 URL
-    var src='https://drive.google.com/uc?export=download&id='+fileId;
-    var source=document.createElement('source');
-    source.src=src; source.type='video/mp4';
-    vid.appendChild(source);
-    wrap.innerHTML='';
-    wrap.appendChild(vid);
-    vid.load();
-    vid.play().catch(function(){});
-    return;
-  }
-
-  // 그 외 직접 MP4 URL
-  var vid2=document.createElement('video');
-  vid2.className='hero-video-frame';
-  vid2.autoplay=true; vid2.muted=true; vid2.loop=true;
-  vid2.setAttribute('playsinline','');
-  vid2.style.cssText='width:100%;display:block;';
-  var src2=document.createElement('source');
-  src2.src=url; src2.type='video/mp4';
-  vid2.appendChild(src2);
-  wrap.innerHTML=''; wrap.appendChild(vid2);
-  vid2.load(); vid2.play().catch(function(){});
-}
 
 function renderAll(){
-  renderBanners();renderProducts();renderNotices();renderLocation();renderHeroVideo();
+  renderBanners();renderProducts();renderNotices();renderLocation();
 }
 
 /* ── 초기 렌더링 ── */
@@ -1194,8 +1087,7 @@ initAudio(); // 캐시 데이터로 즉시 시도
       DB=fresh;
       try{localStorage.setItem(CACHE_KEY,JSON.stringify(DB));}catch(e){}
       renderAll();
-      // 음악 URL 갱신 시 재시도
-      _audioInited=false;
+      // bgMusic URL이 달라졌으면 음악 재시작
       initAudio();
     })
     .catch(function(){});

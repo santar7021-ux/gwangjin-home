@@ -724,7 +724,7 @@ function defData(){return{
   popup:{show:true,title:'남양주 먹골배 입고!',desc:'신선한 먹골배가 입고됐습니다. 지금 바로 주문해 보세요!',imgUrl:''},
   locationImg:'https://drive.google.com/uc?export=view&id=1ypQACPcUALdqMM5uBCjBwSQ4Ad6wvKp1',
   bgMusic:'',
-  heroVideoUrl:'https://drive.google.com/file/d/1weerQXAYqm2G_kH-cAXOQ3iQN5VsJQO4/view',
+  heroVideoUrl:'',  // 관리자에서 설정
   heroVideoUrlMo:''
 };}
 
@@ -736,21 +736,6 @@ var DB=(function(){
 })();
 
 // 3단계: 페이지 로드 후 Sheets에서 최신 데이터 가져오기
-window.addEventListener('load', function(){
-  if(!API_URL||API_URL==='YOUR_APPS_SCRIPT_URL') return;
-  fetch(API_URL+'?action=read&t='+Date.now())
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(!data||!data.ok) return;
-      DB=normalizeData(data);
-      try{localStorage.setItem(CACHE_KEY,JSON.stringify(DB));}catch(e){}
-      renderAll();
-      _audioInited=false; // 새 데이터로 재시도 허용
-      initAudio();
-    })
-    .catch(function(e){console.log('Sheets 로딩 실패, 캐시 사용:', e);});
-});
-
 /* 배너 */
 var bIdx=0,bTimer=null;
 function renderBanners(){
@@ -1198,7 +1183,23 @@ renderAll();
 initPopup();
 initAudio(); // 캐시 데이터로 즉시 시도
 
-/* 영상 자동재생: renderHeroVideo에서 처리 */
+/* ── Sheets 최신 데이터 강제 로딩 (영상/음악 반영) ── */
+(function(){
+  if(!API_URL||API_URL==='YOUR_APPS_SCRIPT_URL') return;
+  fetch(API_URL+'?action=read&t='+Date.now())
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!data||!data.ok) return;
+      var fresh=normalizeData(data);
+      DB=fresh;
+      try{localStorage.setItem(CACHE_KEY,JSON.stringify(DB));}catch(e){}
+      renderAll();
+      // 음악 URL 갱신 시 재시도
+      _audioInited=false;
+      initAudio();
+    })
+    .catch(function(){});
+})();
 
 
 </script>

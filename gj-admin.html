@@ -431,7 +431,11 @@ function loadDB(callback){
         products: data.products&&data.products.length?data.products:def.products,
         notices: data.notices&&data.notices.length?data.notices:def.notices,
         popup: data.popup||def.popup,
-        locationImg: data.locationImg||def.locationImg
+        locationImg: data.locationImg||def.locationImg,
+        bgMusic: data.bgMusic||def.bgMusic||'',
+        heroVideoUrl: data.heroVideoUrl||def.heroVideoUrl||'',
+        heroVideoUrlMo: data.heroVideoUrlMo||def.heroVideoUrlMo||'',
+        greetingVoice: ''
       };
       try{localStorage.setItem(CACHE_KEY,JSON.stringify(merged));}catch(e){}
       DB=merged;
@@ -457,34 +461,61 @@ function sanitizeDB(d){
 }
 function saveDB(){
   DB=sanitizeDB(DB);
-  // 캐시 저장
   try{localStorage.setItem(CACHE_KEY,JSON.stringify(DB));}catch(e){}
-  // Sheets 저장 (GET 방식 - CORS 없음)
   if(!API_URL||API_URL==='YOUR_APPS_SCRIPT_URL'){
-    toast('⚠️ API URL 미설정');
-    return;
+    toast('⚠️ API URL 미설정');return;
   }
-  var payload={
-    banners:  DB.banners,
-    products: DB.products,
-    notices:  DB.notices,
-    settings:{
-      popup_show:  String(DB.popup.show),
-      popup_title: DB.popup.title  ||'',
-      popup_desc:  DB.popup.desc   ||'',
-      popup_img:   DB.popup.imgUrl ||'',
-      location_img:DB.locationImg  ||'',
-      bg_music:DB.bgMusic||'',
-      greeting_voice:'',
-      hero_video_url:DB.heroVideoUrl||'',
+  // URL 길이 초과 방지: 섹션별로 분할 저장
+  var sections=[
+    {type:'settings',data:{
+      popup_show:String(DB.popup.show),popup_title:DB.popup.title||'',
+      popup_desc:DB.popup.desc||'',popup_img:DB.popup.imgUrl||'',
+      location_img:DB.locationImg||'',bg_music:DB.bgMusic||'',
+      greeting_voice:'',hero_video_url:DB.heroVideoUrl||'',
       hero_video_url_mo:DB.heroVideoUrlMo||''
-    }
-  };
+    }},
+    {type:'banners',data:DB.banners},
+    {type:'products',data:DB.products},
+    {type:'notices',data:DB.notices}
+  ];
+  var total=sections.length,done=0,failed=0;
+  sections.forEach(function(sec){
+    var payload={};
+    if(sec.type==='settings') payload={settings:sec.data};
+    else payload[sec.type]=sec.data;
+    var url=API_URL+'?action=save&data='+encodeURIComponent(JSON.stringify(payload));
+    fetch(url)
+      .then(function(r){return r.json();})
+      .then(function(res){
+        done++;
+        if(!res.ok) failed++;
+        if(done===total){
+          if(failed===0) toast('✅ 저장 완료!');
+          else toast('⚠️ 일부 저장 실패 ('+failed+'개)');
+        }
+      })
+      .catch(function(){
+        failed++;done++;
+        if(done===total) toast('❌ 저장 실패 - 네트워크 확인');
+      });
+  });
+}
+
+// settings만 빠르게 저장 (음향/영상 설정용)
+function saveSettingsOnly(){
+  if(!API_URL||API_URL==='YOUR_APPS_SCRIPT_URL') return;
+  var payload={settings:{
+    popup_show:String(DB.popup.show),popup_title:DB.popup.title||'',
+    popup_desc:DB.popup.desc||'',popup_img:DB.popup.imgUrl||'',
+    location_img:DB.locationImg||'',bg_music:DB.bgMusic||'',
+    greeting_voice:'',hero_video_url:DB.heroVideoUrl||'',
+    hero_video_url_mo:DB.heroVideoUrlMo||''
+  }};
   var url=API_URL+'?action=save&data='+encodeURIComponent(JSON.stringify(payload));
   fetch(url)
     .then(function(r){return r.json();})
     .then(function(d){
-      if(d.ok) toast('✅ 구글 시트에 저장 완료!');
+      if(d.ok) toast('✅ 음향/영상 설정 저장 완료!');
       else toast('❌ 저장 오류: '+(d.error||''));
     })
     .catch(function(err){toast('❌ 저장 실패: '+err.message);});
@@ -927,11 +958,13 @@ function previewHeroVideo(){
 function saveSound(){
   var bgOn=document.getElementById('snd_bg_on').checked;
   DB.bgMusic=bgOn?document.getElementById('snd_bg').value.trim():'';
-  DB.greetingVoice=''; // 음성인사 사용 안 함
+  DB.greetingVoice='';
   DB.heroVideoUrl=document.getElementById('snd_video').value.trim();
   DB.heroVideoUrlMo=document.getElementById('snd_video_mo').value.trim();
-  saveDB();
-  toast('✅ 음향/영상 설정 저장됐습니다!');
+  // 캐시 저장
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify(DB));}catch(e){}
+  // settings만 저장 (URL 길이 최소화)
+  saveSettingsOnly();
 }
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
 

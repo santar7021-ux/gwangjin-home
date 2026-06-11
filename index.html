@@ -205,13 +205,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--cream);color:var(--t
 @media(min-width:640px){
   .product-img-wrap{width:100%;height:auto;aspect-ratio:1/1;min-width:unset;}
 }
-.product-img-wrap img{
-  width:100%;height:100%;
-  object-fit:contain;display:block;
-  background:var(--ivory);
-  padding:12px; /* 이미지 사방 여백 - 균일한 카드 느낌 */
-  box-sizing:border-box;
-}
+.product-img-wrap img{width:100%;height:100%;object-fit:contain;display:block;background:var(--ivory);padding:12px;box-sizing:border-box;}
 @media(min-width:640px){.product-img-wrap img{padding:16px;}}
 .product-img-ph{
   width:100%;height:100%;
@@ -1160,6 +1154,28 @@ function renderAll(){
 renderAll();
 initPopup();
 initAudio(); // 캐시 데이터로 즉시 시도
+
+/* ── 소개 영상 자동재생 ── */
+(function(){
+  var frame=document.getElementById('heroVideoFrame');
+  if(!frame) return;
+  var played=false;
+  function tryPlay(){
+    if(played) return;
+    played=true;
+    var base=frame.src.split('?')[0];
+    frame.src=base+'?autoplay=1&controls=0';
+  }
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(entries){
+      if(entries[0].isIntersecting) tryPlay();
+    },{threshold:0.3}).observe(frame);
+  }
+  function onTouch(){tryPlay();document.removeEventListener('click',onTouch);document.removeEventListener('touchstart',onTouch);}
+  document.addEventListener('click',onTouch);
+  document.addEventListener('touchstart',onTouch);
+  setTimeout(tryPlay,2000);
+})();
 
 
 </script>

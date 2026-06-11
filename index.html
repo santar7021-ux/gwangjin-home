@@ -688,7 +688,13 @@ function normalizeData(data){
               videoUrl:b.videoUrl||'',videoType:b.videoType||'',bg:b.bg||'#2D1F0E'};
     }),
     products:(data.products&&data.products.length?data.products:def.products).map(function(p){
-      return {name:p.name||'',desc:p.desc||'',price:p.price||'',badge:p.badge||'',shippingFee:p.shippingFee||'',imgUrl:p.imgUrl||'',imgUrlMo:p.imgUrlMo||''};
+      // shippingFee 정규화
+      var _sf=p.shippingFee||'';
+      // URL이면 잘못 매핑된 것 → 빈값
+      if(_sf.indexOf('http')===0||_sf.indexOf('drive.google')>-1) _sf='';
+      // 숫자만 있으면 "택배비 X원" 형태로
+      if(_sf&&/^[0-9,]+$/.test(_sf.replace(/,/g,''))) _sf='+ 택배비 '+Number(_sf.replace(/,/g,''))+'원';
+      return {name:p.name||'',desc:p.desc||'',price:p.price||'',badge:p.badge||'',shippingFee:_sf,imgUrl:p.imgUrl||'',imgUrlMo:p.imgUrlMo||''};
     }),
     notices:(data.notices&&data.notices.length?data.notices:def.notices).map(function(n){
       return {type:n.type||'notice',title:n.title||'',text:n.text||'',imgUrl:n.imgUrl||'',date:n.date||''};
@@ -1125,24 +1131,62 @@ function renderHeroVideo(){
   var section=document.getElementById('heroVideoSection');
   var wrap=document.getElementById('heroVideoWrap');
   if(!section||!wrap) return;
-  // PC/모바일 URL 분기
   var isMo=window.innerWidth<768;
   var url=(isMo&&DB.heroVideoUrlMo)?DB.heroVideoUrlMo:(DB.heroVideoUrl||'');
   if(!url){section.style.display='none';return;}
   section.style.display='block';
+
+  // 유튜브 링크 → 완전 자동재생 (음소거)
+  var ytId=getYoutubeId(url);
+  if(ytId){
+    var iframe=document.createElement('iframe');
+    iframe.id='heroVideoFrame';
+    iframe.className='hero-video-frame';
+    iframe.src='https://www.youtube.com/embed/'+ytId
+      +'?autoplay=1&mute=1&loop=1&playlist='+ytId
+      +'&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1';
+    iframe.setAttribute('allow','autoplay; encrypted-media; fullscreen');
+    iframe.setAttribute('allowfullscreen','');
+    iframe.setAttribute('frameborder','0');
+    wrap.innerHTML='';
+    wrap.appendChild(iframe);
+    return;
+  }
+
+  // 구글 드라이브 MP4 → <video> 태그로 자동재생
   var fileId=getDriveFileId(url);
-  // 드라이브: muted=1, autoplay=1 파라미터
-  var src=fileId
-    ?'https://drive.google.com/file/d/'+fileId+'/preview?rm=minimal'
-    :url;
-  wrap.innerHTML='<iframe id="heroVideoFrame" class="hero-video-frame"'
-    +' src="'+src+'"'
-    +' allow="autoplay; encrypted-media"'
-    +' allowfullscreen frameborder="0"></iframe>';
-  setTimeout(function(){
-    var f=document.getElementById('heroVideoFrame');
-    if(f){f.src=src;}
-  },800);
+  if(fileId){
+    var vid=document.createElement('video');
+    vid.className='hero-video-frame';
+    vid.autoplay=true;
+    vid.muted=true;
+    vid.loop=true;
+    vid.setAttribute('playsinline','');
+    vid.setAttribute('webkit-playsinline','');
+    vid.style.cssText='width:100%;display:block;';
+    // 구글 드라이브 직접 스트리밍 URL
+    var src='https://drive.google.com/uc?export=download&id='+fileId;
+    var source=document.createElement('source');
+    source.src=src; source.type='video/mp4';
+    vid.appendChild(source);
+    wrap.innerHTML='';
+    wrap.appendChild(vid);
+    vid.load();
+    vid.play().catch(function(){});
+    return;
+  }
+
+  // 그 외 직접 MP4 URL
+  var vid2=document.createElement('video');
+  vid2.className='hero-video-frame';
+  vid2.autoplay=true; vid2.muted=true; vid2.loop=true;
+  vid2.setAttribute('playsinline','');
+  vid2.style.cssText='width:100%;display:block;';
+  var src2=document.createElement('source');
+  src2.src=url; src2.type='video/mp4';
+  vid2.appendChild(src2);
+  wrap.innerHTML=''; wrap.appendChild(vid2);
+  vid2.load(); vid2.play().catch(function(){});
 }
 
 function renderAll(){
@@ -1154,27 +1198,7 @@ renderAll();
 initPopup();
 initAudio(); // 캐시 데이터로 즉시 시도
 
-/* ── 소개 영상 자동재생 ── */
-(function(){
-  var frame=document.getElementById('heroVideoFrame');
-  if(!frame) return;
-  var played=false;
-  function tryPlay(){
-    if(played) return;
-    played=true;
-    var base=frame.src.split('?')[0];
-    frame.src=base+'?autoplay=1&controls=0';
-  }
-  if('IntersectionObserver' in window){
-    new IntersectionObserver(function(entries){
-      if(entries[0].isIntersecting) tryPlay();
-    },{threshold:0.3}).observe(frame);
-  }
-  function onTouch(){tryPlay();document.removeEventListener('click',onTouch);document.removeEventListener('touchstart',onTouch);}
-  document.addEventListener('click',onTouch);
-  document.addEventListener('touchstart',onTouch);
-  setTimeout(tryPlay,2000);
-})();
+/* 영상 자동재생: renderHeroVideo에서 처리 */
 
 
 </script>
